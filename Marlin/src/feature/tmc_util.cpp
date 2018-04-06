@@ -284,12 +284,12 @@ bool report_tmc_status = false;
   static void drv_status_print_hex(const uint32_t drv_status) {
     SERIAL_ECHOPGM(" = 0x");
     for (int B = 24; B >= 8; B -= 8){
-      SERIAL_PRINT((drv_status >> (B + 4)) & 0xF, HEX);
-      SERIAL_PRINT((drv_status >> B) & 0xF, HEX);
+      SERIAL_PRINT((uint8_t)(drv_status >> (B + 4)) & 0xF, HEX);
+      SERIAL_PRINT((uint8_t)(drv_status >> B) & 0xF, HEX);
       SERIAL_CHAR(':');
     }
-    SERIAL_PRINT((drv_status >> 4) & 0xF, HEX);
-    SERIAL_PRINT((drv_status) & 0xF, HEX);
+    SERIAL_PRINT((uint8_t)(drv_status >> 4) & 0xF, HEX);
+    SERIAL_PRINT((uint8_t)(drv_status) & 0xF, HEX);
     SERIAL_EOL();
   }
 
@@ -588,7 +588,7 @@ bool report_tmc_status = false;
       DRV_REPORT("s2vsa\t",          TMC_S2VSA);
       DRV_REPORT("s2vsb\t",          TMC_S2VSB);
     #endif
-    DRV_REPORT("Driver registers:",  TMC_DRV_STATUS_HEX);
+    DRV_REPORT("Driver registers:\n",TMC_DRV_STATUS_HEX);
     SERIAL_EOL();
   }
 
