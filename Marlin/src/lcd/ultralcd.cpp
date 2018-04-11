@@ -74,6 +74,10 @@
   #include "../libs/buzzer.h"
 #endif
 
+#if HAS_TRINAMIC
+  #include "../feature/tmc_util.h"
+#endif
+
 #if ENABLED(STATUS_MESSAGE_SCROLLING)
   #if LONG_FILENAME_LENGTH > CHARSIZE * 2 * (LCD_WIDTH)
     #define MAX_MESSAGE_LENGTH LONG_FILENAME_LENGTH
@@ -134,7 +138,9 @@ uint16_t max_display_update_time = 0;
     } \
     typedef void _name##_void
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(int16_t, int3, itostr3);
-  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint8_t, int8, i8tostr3);
+  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint8_t, uint8, ui8tostr3);
+  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint16_t, uint16, uitostr3);
+  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint16_t, uint16_1, uitostr4);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float3, ftostr3);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float52, ftostr52);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float43, ftostr43sign);
@@ -262,7 +268,9 @@ uint16_t max_display_update_time = 0;
     typedef void _name##_void
 
   DECLARE_MENU_EDIT_TYPE(int16_t, int3);
-  DECLARE_MENU_EDIT_TYPE(uint8_t, int8);
+  DECLARE_MENU_EDIT_TYPE(uint8_t, uint8);
+  DECLARE_MENU_EDIT_TYPE(uint16_t, uint16);
+  DECLARE_MENU_EDIT_TYPE(uint16_t, uint16_1);
   DECLARE_MENU_EDIT_TYPE(float, float3);
   DECLARE_MENU_EDIT_TYPE(float, float52);
   DECLARE_MENU_EDIT_TYPE(float, float43);
@@ -1573,6 +1581,207 @@ void lcd_quick_feedback(const bool clear_buttons) {
     }
 
   #endif // HAS_MOTOR_CURRENT_PWM
+
+  #if HAS_TRINAMIC
+    #define TMC_EDIT_STORED_I_RMS(ST) MENU_ITEM_EDIT_CALLBACK(uint16_1, MSG_##ST, &stepper##ST.stored.I_rms, 100, 1200, refresh_tmc_driver_current)
+    void lcd_tmc_current_menu() {
+      START_MENU();
+      MENU_BACK(MSG_TMC_DRIVERS);
+      #if AXIS_IS_TMC(X)
+        TMC_EDIT_STORED_I_RMS(X);
+      #endif
+      #if AXIS_IS_TMC(Y)
+        TMC_EDIT_STORED_I_RMS(Y);
+      #endif
+      #if AXIS_IS_TMC(Z)
+        TMC_EDIT_STORED_I_RMS(Z);
+      #endif
+      #if AXIS_IS_TMC(X2)
+        TMC_EDIT_STORED_I_RMS(X2);
+      #endif
+      #if AXIS_IS_TMC(Y2)
+        TMC_EDIT_STORED_I_RMS(Y2);
+      #endif
+      #if AXIS_IS_TMC(Z2)
+        TMC_EDIT_STORED_I_RMS(Z2);
+      #endif
+      #if AXIS_IS_TMC(E0)
+        TMC_EDIT_STORED_I_RMS(E0);
+      #endif
+      #if AXIS_IS_TMC(E1)
+        TMC_EDIT_STORED_I_RMS(E1);
+      #endif
+      #if AXIS_IS_TMC(E2)
+        TMC_EDIT_STORED_I_RMS(E2);
+      #endif
+      #if AXIS_IS_TMC(E3)
+        TMC_EDIT_STORED_I_RMS(E3);
+      #endif
+      #if AXIS_IS_TMC(E4)
+        TMC_EDIT_STORED_I_RMS(E4);
+      #endif
+      END_MENU();
+    }
+    #if ENABLED(HYBRID_THRESHOLD)
+      #define TMC_EDIT_STORED_HYBRID_THRS(ST) MENU_ITEM_EDIT_CALLBACK(uint8, MSG_##ST, &stepper##ST.stored.hybrid_thrs, 0, 255, refresh_tmc_hybrid_thrs);
+      void lcd_tmc_hybrid_thrs() {
+        START_MENU();
+        MENU_BACK(MSG_TMC_DRIVERS);
+        #if AXIS_HAS_STEALTHCHOP(X)
+          TMC_EDIT_STORED_HYBRID_THRS(X);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Y)
+          TMC_EDIT_STORED_HYBRID_THRS(Y);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z)
+          TMC_EDIT_STORED_HYBRID_THRS(Z);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(X2)
+          TMC_EDIT_STORED_HYBRID_THRS(X2);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Y2)
+          TMC_EDIT_STORED_HYBRID_THRS(Y2);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z2)
+          TMC_EDIT_STORED_HYBRID_THRS(Z2);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E0)
+          TMC_EDIT_STORED_HYBRID_THRS(E0);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E1)
+          TMC_EDIT_STORED_HYBRID_THRS(E1);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E2)
+          TMC_EDIT_STORED_HYBRID_THRS(E2);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E3)
+          TMC_EDIT_STORED_HYBRID_THRS(E3);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E4)
+          TMC_EDIT_STORED_HYBRID_THRS(E4);
+        #endif
+        END_MENU();
+      }
+    #endif
+    #if ENABLED(SENSORLESS_HOMING)
+      #define TMC_EDIT_STORED_SGT(ST) MENU_ITEM_EDIT_CALLBACK(int8, MSG_##ST, &stepper##ST.stored.homing_thrs, -64, 63, refresh_tmc_homing_thrs);
+      void lcd_tmc_homing_thrs() {
+        START_MENU();
+        MENU_BACK(MSG_TMC_DRIVERS);
+        #if X_SENSORLESS(X)
+          TMC_EDIT_STORED_SGT(X);
+        #endif
+        #if Y_SENSORLESS(Y)
+          TMC_EDIT_STORED_SGT(Y);
+        #endif
+        #if Z_SENSORLESS(Y)
+          TMC_EDIT_STORED_SGT(Z);
+        #endif
+        END_MENU();
+      }
+    #endif
+    #define TMC_SHOW_SG_RESULT(ST) STATIC_ITEM(MSG_##ST ": ", false, false, uitostr3(stepper##ST.stored.sg_result))
+    void lcd_tmc_sg_result() {
+      START_MENU();
+      MENU_BACK(MSG_TMC_STATUS);
+      #if AXIS_HAS_STALLGUARD(X) && !AXIS_DRIVER_TYPE(X, TMC2660)
+        TMC_SHOW_SG_RESULT(X);
+      #endif
+      #if AXIS_HAS_STALLGUARD(Y) && !AXIS_DRIVER_TYPE(Y, TMC2660)
+        TMC_SHOW_SG_RESULT(Y);
+      #endif
+      #if AXIS_HAS_STALLGUARD(Z) && !AXIS_DRIVER_TYPE(Z, TMC2660)
+        TMC_SHOW_SG_RESULT(Z);
+      #endif
+      #if AXIS_HAS_STALLGUARD(X2) && !AXIS_DRIVER_TYPE(X2, TMC2660)
+        TMC_SHOW_SG_RESULT(X2);
+      #endif
+      #if AXIS_HAS_STALLGUARD(Y2) && !AXIS_DRIVER_TYPE(Y2, TMC2660)
+        TMC_SHOW_SG_RESULT(Y2);
+      #endif
+      #if AXIS_HAS_STALLGUARD(Z2) && !AXIS_DRIVER_TYPE(Z2, TMC2660)
+        TMC_SHOW_SG_RESULT(Z2);
+      #endif
+      #if AXIS_HAS_STALLGUARD(E0) && !AXIS_DRIVER_TYPE(E0, TMC2660)
+        TMC_SHOW_SG_RESULT(E0);
+      #endif
+      #if AXIS_HAS_STALLGUARD(E1) && !AXIS_DRIVER_TYPE(E1, TMC2660)
+        TMC_SHOW_SG_RESULT(E1);
+      #endif
+      #if AXIS_HAS_STALLGUARD(E2) && !AXIS_DRIVER_TYPE(E2, TMC2660)
+        TMC_SHOW_SG_RESULT(E2);
+      #endif
+      #if AXIS_HAS_STALLGUARD(E3) && !AXIS_DRIVER_TYPE(E3, TMC2660)
+        TMC_SHOW_SG_RESULT(E3);
+      #endif
+      #if AXIS_HAS_STALLGUARD(E4) && !AXIS_DRIVER_TYPE(E4, TMC2660)
+        TMC_SHOW_SG_RESULT(E4);
+      #endif
+      END_MENU();
+    }
+    #define TMC_SHOW_CS_ACTUAL(ST) STATIC_ITEM(MSG_##ST ": ", false, false, ui8tostr3(stepper##ST.stored.cs_actual))
+    void lcd_tmc_cs_actual() {
+      START_MENU();
+      MENU_BACK(MSG_TMC_STATUS);
+      #if AXIS_IS_TMC(X)
+        TMC_SHOW_CS_ACTUAL(X);
+      #endif
+      #if AXIS_IS_TMC(Y)
+        TMC_SHOW_CS_ACTUAL(Y);
+      #endif
+      #if AXIS_IS_TMC(Z)
+        TMC_SHOW_CS_ACTUAL(Z);
+      #endif
+      #if AXIS_IS_TMC(X2)
+        TMC_SHOW_CS_ACTUAL(X2);
+      #endif
+      #if AXIS_IS_TMC(Y2)
+        TMC_SHOW_CS_ACTUAL(Y2);
+      #endif
+      #if AXIS_IS_TMC(Z2)
+        TMC_SHOW_CS_ACTUAL(Z2);
+      #endif
+      #if AXIS_IS_TMC(E0)
+        TMC_SHOW_CS_ACTUAL(E0);
+      #endif
+      #if AXIS_IS_TMC(E1)
+        TMC_SHOW_CS_ACTUAL(E1);
+      #endif
+      #if AXIS_IS_TMC(E2)
+        TMC_SHOW_CS_ACTUAL(E2);
+      #endif
+      #if AXIS_IS_TMC(E3)
+        TMC_SHOW_CS_ACTUAL(E3);
+      #endif
+      #if AXIS_IS_TMC(E4)
+        TMC_SHOW_CS_ACTUAL(E4);
+      #endif
+      END_MENU();
+    }
+    void lcd_tmc_info_menu() {
+      START_MENU();
+      MENU_BACK(MSG_TMC_DRIVERS);
+      MENU_ITEM(submenu, MSG_TMC_LOAD, lcd_tmc_sg_result);
+      MENU_ITEM(submenu, MSG_TMC_CS_ACTUAL, lcd_tmc_cs_actual);
+      END_MENU();
+    }
+    void lcd_tmc_menu() {
+      START_MENU();
+      MENU_BACK(MSG_CONTROL);
+      MENU_ITEM(submenu, MSG_TMC_CURRENT, lcd_tmc_current_menu);
+      #if ENABLED(HYBRID_THRESHOLD)
+        MENU_ITEM(submenu, MSG_TMC_HYBRID_THRS, lcd_tmc_hybrid_thrs);
+      #endif
+      #if ENABLED(SENSORLESS_HOMING)
+        MENU_ITEM(submenu, MSG_TMC_HOMING_THRS, lcd_tmc_homing_thrs);
+      #endif
+      #if ENABLED(STEALTHCHOP)
+        MENU_ITEM_EDIT_CALLBACK(bool, MSG_TMC_USE_STEALTHCHOP, &stepperX.stored.stealthChop_enabled, set_tmc_stepping_mode);
+      #endif
+      MENU_ITEM(submenu, MSG_TMC_STATUS, lcd_tmc_info_menu);
+      END_MENU();
+    }
+  #endif
 
   constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
 
@@ -3363,6 +3572,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #if HAS_MOTOR_CURRENT_PWM
       MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_pwm_menu);
     #endif
+    #if HAS_TRINAMIC
+      MENU_ITEM(submenu, MSG_TMC_DRIVERS, lcd_tmc_menu);
+    #endif
 
     #if ENABLED(BLTOUCH)
       MENU_ITEM(submenu, MSG_BLTOUCH, bltouch_menu);
@@ -4869,6 +5081,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
   DEFINE_MENU_EDIT_TYPE(float, float52sign, ftostr52sign, 100);
   DEFINE_MENU_EDIT_TYPE(float, float62, ftostr62rj, 100);
   DEFINE_MENU_EDIT_TYPE(uint32_t, long5, ftostr5rj, 0.01f);
+  DEFINE_MENU_EDIT_TYPE(uint16_t, uint16, uitostr3, 1);
+  DEFINE_MENU_EDIT_TYPE(uint8_t, uint8, ui8tostr3, 1);
+  DEFINE_MENU_EDIT_TYPE(uint16_t, uint16_1, uitostr4, 0.1); 
 
   /**
    *
@@ -5063,6 +5278,10 @@ void lcd_init() {
 
   #if ENABLED(ULTIPANEL)
     encoderDiff = 0;
+  #endif
+
+  #if HAS_TRINAMIC
+    init_tmc_section();
   #endif
 }
 
