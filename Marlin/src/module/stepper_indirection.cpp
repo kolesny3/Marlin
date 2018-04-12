@@ -234,6 +234,13 @@
     st.iholddelay(10);
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
 
+    #if ENABLED(ADAPTIVE_CURRENT)
+      COOLCONF_t coolconf;
+      coolconf.semin = INCREASE_CURRENT_THRS;
+      coolconf.semax = REDUCE_CURRENT_THRS;
+      st.COOLCONF(coolconf.sr);
+    #endif
+
     #if ENABLED(STEALTHCHOP)
       st.en_pwm_mode(true);
 
@@ -539,6 +546,13 @@
     chopconf.hend = timings[1] + 3;
     chopconf.hstrt = timings[2] - 1;
     st.CHOPCONF(chopconf.sr);
+
+    #if ENABLED(ADAPTIVE_CURRENT)
+      SMARTEN_t smarten;
+      smarten.semin = INCREASE_CURRENT_THRS;
+      smarten.semax = REDUCE_CURRENT_THRS;
+      st.SMARTEN(smarten.sr);
+    #endif
   }
 #endif // TMC2660
 
@@ -612,6 +626,13 @@
 
     st.iholddelay(10);
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
+
+    #if ENABLED(ADAPTIVE_CURRENT)
+      COOLCONF_t coolconf;
+      coolconf.semin = INCREASE_CURRENT_THRS;
+      coolconf.semax = REDUCE_CURRENT_THRS;
+      st.COOLCONF(coolconf.sr);
+    #endif
 
     #if ENABLED(STEALTHCHOP)
       st.en_pwm_mode(true);
