@@ -131,18 +131,13 @@
 #if ENABLED(HAVE_TMC2130)
 
   #include <SPI.h>
-  #include <TMC2130Stepper.h>
   #include "planner.h"
   #include "../core/enum.h"
 
-  #if TMC2130STEPPER_VERSION < 0x020201
-    #error "Update TMC2130Stepper library to 2.2.1 or newer."
-  #endif
-
   #if ENABLED(TMC_USE_SW_SPI)
-    #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_ENABLE_PIN, ST##_DIR_PIN, ST##_STEP_PIN, ST##_CS_PIN, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+    #define _TMC2130_DEFINE(ST) TMCMarlin<TMC2130Stepper> stepper##ST(TMC_##ST##_LABEL, ST##_CS_PIN, R_SENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
   #else
-    #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_ENABLE_PIN, ST##_DIR_PIN, ST##_STEP_PIN, ST##_CS_PIN)
+    #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_CS_PIN, R_SENSE)
   #endif
 
   // Stepper objects of TMC2130 steppers used
@@ -180,31 +175,32 @@
     _TMC2130_DEFINE(E4);
   #endif
 
-  // Use internal reference voltage for current calculations. This is the default.
-  // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
-  // https://www.trinamic.com/products/integrated-circuits/details/tmc2130/
-  void tmc2130_init(TMC2130Stepper &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
+  void tmc2130_init(TMCMarlin<TMC2130Stepper> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
     #if DISABLED(STEALTHCHOP) || DISABLED(HYBRID_THRESHOLD)
       UNUSED(thrs);
       UNUSED(spmm);
     #endif
     st.begin();
-    st.setCurrent(mA, R_SENSE, HOLD_MULTIPLIER);
+    st.rms_current(mA, HOLD_MULTIPLIER);
     st.microsteps(microsteps);
-    st.blank_time(24);
-    st.off_time(5); // Only enables the driver if used with stealthChop
-    st.interpolate(INTERPOLATE);
-    st.power_down_delay(128); // ~2s until driver lowers to hold current
+    st.tbl(1);
+    st.toff(3); // Only enables the driver if used with stealthChop
+    st.intpol(INTERPOLATE);
+    st.iholddelay(10);
+    st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
     st.hysteresis_start(3);
     st.hysteresis_end(2);
     #if ENABLED(STEALTHCHOP)
-      st.stealth_freq(1); // f_pwm = 2/683 f_clk
-      st.stealth_autoscale(1);
-      st.stealth_gradient(5);
-      st.stealth_amplitude(255);
-      st.stealthChop(1);
+      st.pwm_freq(0b01); // f_pwm = 2/683 f_clk
+      st.pwm_autoscale(true);
+      st.pwm_grad(5);
+      st.pwm_ampl(255);
+      st.en_pwm_mode(true);
       #if ENABLED(HYBRID_THRESHOLD)
-        st.stealth_max_speed(12650000UL*microsteps/(256*thrs*spmm));
+        st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
+      #else
+        UNUSED(thrs);
+        UNUSED(spmm);
       #endif
     #endif
     st.GSTAT(); // Clear GSTAT
@@ -284,16 +280,10 @@
 
   #include <SoftwareSerial.h>
   #include <HardwareSerial.h>
-  #include <TMC2208Stepper.h>
   #include "planner.h"
 
-  #if TMC2208STEPPER_VERSION < 0x000101
-    #error "Update TMC2208Stepper library to 0.1.1 or newer."
-  #endif
-
-  #define _TMC2208_DEFINE_HARDWARE(ST) TMC2208Stepper stepper##ST(&ST##_HARDWARE_SERIAL)
-  #define _TMC2208_DEFINE_SOFTWARE(ST) SoftwareSerial ST##_HARDWARE_SERIAL = SoftwareSerial(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN); \
-                                       TMC2208Stepper stepper##ST(&ST##_HARDWARE_SERIAL, ST##_SERIAL_RX_PIN > -1)
+  #define _TMC2208_DEFINE_HARDWARE(ST) TMCMarlin<TMC2208Stepper> stepper##ST(TMC_##ST##_LABEL, &ST##_HARDWARE_SERIAL, R_SENSE)
+  #define _TMC2208_DEFINE_SOFTWARE(ST) TMCMarlin<TMC2208Stepper> stepper##ST(TMC_##ST##_LABEL, ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, R_SENSE, ST##_SERIAL_RX_PIN > -1)
 
   // Stepper objects of TMC2208 steppers used
   #if ENABLED(X_IS_TMC2208)
@@ -376,51 +366,50 @@
 
   void tmc2208_serial_begin() {
     #if ENABLED(X_IS_TMC2208)
-      X_HARDWARE_SERIAL.begin(115200);
+      stepperX.beginSerial(115200);
     #endif
     #if ENABLED(X2_IS_TMC2208)
-      X2_HARDWARE_SERIAL.begin(115200);
+      stepperX2.beginSerial(115200);
     #endif
     #if ENABLED(Y_IS_TMC2208)
-      Y_HARDWARE_SERIAL.begin(115200);
+      stepperY.beginSerial(115200);
     #endif
     #if ENABLED(Y2_IS_TMC2208)
-      Y2_HARDWARE_SERIAL.begin(115200);
+      stepperY2.beginSerial(115200);
     #endif
     #if ENABLED(Z_IS_TMC2208)
-      Z_HARDWARE_SERIAL.begin(115200);
+      stepperZ.beginSerial(115200);
     #endif
     #if ENABLED(Z2_IS_TMC2208)
-      Z2_HARDWARE_SERIAL.begin(115200);
+      stepperZ2.beginSerial(115200);
     #endif
     #if ENABLED(E0_IS_TMC2208)
-      E0_HARDWARE_SERIAL.begin(115200);
+      stepperE0.beginSerial(115200);
     #endif
     #if ENABLED(E1_IS_TMC2208)
-      E1_HARDWARE_SERIAL.begin(115200);
+      stepperE1.beginSerial(115200);
     #endif
     #if ENABLED(E2_IS_TMC2208)
-      E2_HARDWARE_SERIAL.begin(115200);
+      stepperE2.beginSerial(115200);
     #endif
     #if ENABLED(E3_IS_TMC2208)
-      E3_HARDWARE_SERIAL.begin(115200);
+      stepperE3.beginSerial(115200);
     #endif
     #if ENABLED(E4_IS_TMC2208)
-      E4_HARDWARE_SERIAL.begin(115200);
+      stepperE4.beginSerial(115200);
     #endif
   }
 
-  // Use internal reference voltage for current calculations. This is the default.
-  // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
-  void tmc2208_init(TMC2208Stepper &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
+  void tmc2208_init(TMCMarlin<TMC2208Stepper> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
     st.pdn_disable(true); // Use UART
     st.mstep_reg_select(true); // Select microsteps with UART
     st.I_scale_analog(false);
-    st.rms_current(mA, HOLD_MULTIPLIER, R_SENSE);
+    st.rms_current(mA, HOLD_MULTIPLIER);
     st.microsteps(microsteps);
     st.blank_time(24);
     st.toff(5);
     st.intpol(INTERPOLATE);
+    st.iholddelay(10);
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
     st.hysteresis_start(3);
     st.hysteresis_end(2);

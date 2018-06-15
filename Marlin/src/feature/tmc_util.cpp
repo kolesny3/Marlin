@@ -124,16 +124,16 @@ bool report_tmc_status = false;
       SERIAL_ECHOPGM(": ");
       _tmc_say_axis(axis);
       SERIAL_ECHOPGM(" driver overtemperature warning! (");
-      SERIAL_ECHO(st.getCurrent());
+      SERIAL_ECHO(st.getMilliamps());
       SERIAL_ECHOLNPGM("mA)");
     }
     #if CURRENT_STEP_DOWN > 0
       // Decrease current if is_otpw is true and driver is enabled and there's been more than 4 warnings
       if (data.is_otpw && st.isEnabled() && otpw_cnt > 4) {
-        st.setCurrent(st.getCurrent() - CURRENT_STEP_DOWN, R_SENSE, HOLD_MULTIPLIER);
+        st.rms_current(st.getMilliamps() - CURRENT_STEP_DOWN);
         #if ENABLED(REPORT_CURRENT_CHANGE)
           _tmc_say_axis(axis);
-          SERIAL_ECHOLNPAIR(" current decreased to ", st.getCurrent());
+          SERIAL_ECHOLNPAIR(" current decreased to ", st.getMilliamps());
         #endif
       }
     #endif
@@ -317,7 +317,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.PWM_SCALE(), DEC); break;
         case TMC_TSTEP: SERIAL_ECHO(st.TSTEP()); break;
         case TMC_SGT: SERIAL_PRINT(st.sgt(), DEC); break;
-        case TMC_STEALTHCHOP: serialprintPGM(st.stealthChop() ? PSTR("true") : PSTR("false")); break;
+        case TMC_STEALTHCHOP: serialprintPGM(st.en_pwm_mode() ? PSTR("true") : PSTR("false")); break;
         default: break;
       }
     }
@@ -359,7 +359,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
     switch (i) {
       case TMC_CODES: _tmc_say_axis(axis); break;
       case TMC_ENABLED: serialprintPGM(st.isEnabled() ? PSTR("true") : PSTR("false")); break;
-      case TMC_CURRENT: SERIAL_ECHO(st.getCurrent()); break;
+      case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
       case TMC_RMS_CURRENT: SERIAL_PROTOCOL(st.rms_current()); break;
       case TMC_MAX_CURRENT: SERIAL_PRINT((float)st.rms_current() * 1.41, 0); break;
       case TMC_IRUN:
@@ -581,10 +581,10 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
 
 #if ENABLED(SENSORLESS_HOMING)
 
-  void tmc_sensorless_homing(TMC2130Stepper &st, const bool enable/*=true*/) {
-    st.coolstep_min_speed(enable ? 1024UL * 1024UL - 1UL : 0);
+  void tmc_sensorless_homing(TMCMarlin<TMC2130Stepper> &st, const bool enable/*=true*/) {
     #if ENABLED(STEALTHCHOP)
-      st.stealthChop(!enable);
+      st.TCOOLTHRS(enable ? 0xFFFFF : 0);
+      st.en_pwm_mode(!enable);
     #endif
     st.diag1_stall(enable ? 1 : 0);
   }
