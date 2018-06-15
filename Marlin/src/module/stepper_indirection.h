@@ -59,11 +59,13 @@
 
 #if HAS_TRINAMIC
   #include <TMCStepper.h>
-
+  #include "../feature/tmc_util.h"
   #if TMCSTEPPER_VERSION < 0x000001
     #error "Update TMCStepper library to 0.0.1 or newer."
   #endif
 
+  #define _TMC_CLASS(MODEL) TMCMarlin<TMC##MODEL##Stepper>
+  #define TMC_CLASS(MODEL) _TMC_CLASS(MODEL)
   #if HAVE_TMC(2130)
     void tmc2130_init_to_defaults();
   #endif
@@ -93,17 +95,15 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define X_DIR_WRITE(STATE) stepperX.Step_Clock(STATE)
   #define X_DIR_READ (stepperX.getStatus() & STATUS_DIR)
 #else
+  #if X_IS_TRINAMIC
+    extern TMC_CLASS(X_DRIVER_TYPE) stepperX;
+  #endif
   #if ENABLED(X_IS_TMC26X)
     extern TMC26XStepper stepperX;
     #define X_ENABLE_INIT NOOP
     #define X_ENABLE_WRITE(STATE) stepperX.setEnabled(STATE)
     #define X_ENABLE_READ stepperX.isEnabled()
   #else
-    #if ENABLED(X_IS_TMC2130)
-      extern TMC2130Stepper stepperX;
-    #elif ENABLED(X_IS_TMC2208)
-      extern TMC2208Stepper stepperX;
-    #endif
     #define X_ENABLE_INIT SET_OUTPUT(X_ENABLE_PIN)
     #define X_ENABLE_WRITE(STATE) WRITE(X_ENABLE_PIN,STATE)
     #define X_ENABLE_READ READ(X_ENABLE_PIN)
@@ -126,17 +126,15 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Y_DIR_WRITE(STATE) stepperY.Step_Clock(STATE)
   #define Y_DIR_READ (stepperY.getStatus() & STATUS_DIR)
 #else
+  #if Y_IS_TRINAMIC
+    extern TMC_CLASS(Y_DRIVER_TYPE) stepperY;
+  #endif
   #if ENABLED(Y_IS_TMC26X)
     extern TMC26XStepper stepperY;
     #define Y_ENABLE_INIT NOOP
     #define Y_ENABLE_WRITE(STATE) stepperY.setEnabled(STATE)
     #define Y_ENABLE_READ stepperY.isEnabled()
   #else
-    #if ENABLED(Y_IS_TMC2130)
-      extern TMC2130Stepper stepperY;
-    #elif ENABLED(Y_IS_TMC2208)
-      extern TMC2208Stepper stepperY;
-    #endif
     #define Y_ENABLE_INIT SET_OUTPUT(Y_ENABLE_PIN)
     #define Y_ENABLE_WRITE(STATE) WRITE(Y_ENABLE_PIN,STATE)
     #define Y_ENABLE_READ READ(Y_ENABLE_PIN)
@@ -159,17 +157,15 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define Z_DIR_WRITE(STATE) stepperZ.Step_Clock(STATE)
   #define Z_DIR_READ (stepperZ.getStatus() & STATUS_DIR)
 #else
+  #if Z_IS_TRINAMIC
+    extern TMC_CLASS(Z_DRIVER_TYPE) stepperZ;
+  #endif
   #if ENABLED(Z_IS_TMC26X)
     extern TMC26XStepper stepperZ;
     #define Z_ENABLE_INIT NOOP
     #define Z_ENABLE_WRITE(STATE) stepperZ.setEnabled(STATE)
     #define Z_ENABLE_READ stepperZ.isEnabled()
   #else
-    #if ENABLED(Z_IS_TMC2130)
-      extern TMC2130Stepper stepperZ;
-    #elif ENABLED(Z_IS_TMC2208)
-      extern TMC2208Stepper stepperZ;
-    #endif
     #define Z_ENABLE_INIT SET_OUTPUT(Z_ENABLE_PIN)
     #define Z_ENABLE_WRITE(STATE) WRITE(Z_ENABLE_PIN,STATE)
     #define Z_ENABLE_READ READ(Z_ENABLE_PIN)
@@ -193,17 +189,15 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define X2_DIR_WRITE(STATE) stepperX2.Step_Clock(STATE)
     #define X2_DIR_READ (stepperX2.getStatus() & STATUS_DIR)
   #else
+    #if X2_IS_TRINAMIC
+      extern TMC_CLASS(X2_DRIVER_TYPE) stepperX2;
+    #endif
     #if ENABLED(X2_IS_TMC26X)
       extern TMC26XStepper stepperX2;
       #define X2_ENABLE_INIT NOOP
       #define X2_ENABLE_WRITE(STATE) stepperX2.setEnabled(STATE)
       #define X2_ENABLE_READ stepperX2.isEnabled()
     #else
-      #if ENABLED(X2_IS_TMC2130)
-        extern TMC2130Stepper stepperX2;
-      #elif ENABLED(X2_IS_TMC2208)
-        extern TMC2208Stepper stepperX2;
-      #endif
       #define X2_ENABLE_INIT SET_OUTPUT(X2_ENABLE_PIN)
       #define X2_ENABLE_WRITE(STATE) WRITE(X2_ENABLE_PIN,STATE)
       #define X2_ENABLE_READ READ(X2_ENABLE_PIN)
@@ -228,17 +222,15 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Y2_DIR_WRITE(STATE) stepperY2.Step_Clock(STATE)
     #define Y2_DIR_READ (stepperY2.getStatus() & STATUS_DIR)
   #else
+    #if Y2_IS_TRINAMIC
+      extern TMC_CLASS(Y2_DRIVER_TYPE) stepperY2;
+    #endif
     #if ENABLED(Y2_IS_TMC26X)
       extern TMC26XStepper stepperY2;
       #define Y2_ENABLE_INIT NOOP
       #define Y2_ENABLE_WRITE(STATE) stepperY2.setEnabled(STATE)
       #define Y2_ENABLE_READ stepperY2.isEnabled()
     #else
-      #if ENABLED(Y2_IS_TMC2130)
-        extern TMC2130Stepper stepperY2;
-      #elif ENABLED(Y2_IS_TMC2208)
-        extern TMC2208Stepper stepperY2;
-      #endif
       #define Y2_ENABLE_INIT SET_OUTPUT(Y2_ENABLE_PIN)
       #define Y2_ENABLE_WRITE(STATE) WRITE(Y2_ENABLE_PIN,STATE)
       #define Y2_ENABLE_READ READ(Y2_ENABLE_PIN)
@@ -263,17 +255,15 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Z2_DIR_WRITE(STATE) stepperZ2.Step_Clock(STATE)
     #define Z2_DIR_READ (stepperZ2.getStatus() & STATUS_DIR)
   #else
+    #if Z2_IS_TRINAMIC
+      extern TMC_CLASS(Z2_DRIVER_TYPE) stepperZ2;
+    #endif
     #if ENABLED(Z2_IS_TMC26X)
       extern TMC26XStepper stepperZ2;
       #define Z2_ENABLE_INIT NOOP
       #define Z2_ENABLE_WRITE(STATE) stepperZ2.setEnabled(STATE)
       #define Z2_ENABLE_READ stepperZ2.isEnabled()
     #else
-      #if ENABLED(Z2_IS_TMC2130)
-        extern TMC2130Stepper stepperZ2;
-      #elif ENABLED(Z2_IS_TMC2208)
-        extern TMC2208Stepper stepperZ2;
-      #endif
       #define Z2_ENABLE_INIT SET_OUTPUT(Z2_ENABLE_PIN)
       #define Z2_ENABLE_WRITE(STATE) WRITE(Z2_ENABLE_PIN,STATE)
       #define Z2_ENABLE_READ READ(Z2_ENABLE_PIN)
@@ -297,17 +287,15 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E0_DIR_WRITE(STATE) stepperE0.Step_Clock(STATE)
   #define E0_DIR_READ (stepperE0.getStatus() & STATUS_DIR)
 #else
+  #if E0_IS_TRINAMIC
+    extern TMC_CLASS(E0_DRIVER_TYPE) stepperE0;
+  #endif
   #if ENABLED(E0_IS_TMC26X)
     extern TMC26XStepper stepperE0;
     #define E0_ENABLE_INIT NOOP
     #define E0_ENABLE_WRITE(STATE) stepperE0.setEnabled(STATE)
     #define E0_ENABLE_READ stepperE0.isEnabled()
   #else
-    #if ENABLED(E0_IS_TMC2130)
-      extern TMC2130Stepper stepperE0;
-    #elif ENABLED(E0_IS_TMC2208)
-      extern TMC2208Stepper stepperE0;
-    #endif
     #define E0_ENABLE_INIT SET_OUTPUT(E0_ENABLE_PIN)
     #define E0_ENABLE_WRITE(STATE) WRITE(E0_ENABLE_PIN,STATE)
     #define E0_ENABLE_READ READ(E0_ENABLE_PIN)
@@ -330,17 +318,15 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E1_DIR_WRITE(STATE) stepperE1.Step_Clock(STATE)
   #define E1_DIR_READ (stepperE1.getStatus() & STATUS_DIR)
 #else
+  #if E1_IS_TRINAMIC
+    extern TMC_CLASS(E1_DRIVER_TYPE) stepperE1;
+  #endif
   #if ENABLED(E1_IS_TMC26X)
     extern TMC26XStepper stepperE1;
     #define E1_ENABLE_INIT NOOP
     #define E1_ENABLE_WRITE(STATE) stepperE1.setEnabled(STATE)
     #define E1_ENABLE_READ stepperE1.isEnabled()
   #else
-    #if ENABLED(E1_IS_TMC2130)
-      extern TMC2130Stepper stepperE1;
-    #elif ENABLED(E1_IS_TMC2208)
-      extern TMC2208Stepper stepperE1;
-    #endif
     #define E1_ENABLE_INIT SET_OUTPUT(E1_ENABLE_PIN)
     #define E1_ENABLE_WRITE(STATE) WRITE(E1_ENABLE_PIN,STATE)
     #define E1_ENABLE_READ READ(E1_ENABLE_PIN)
@@ -363,17 +349,15 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E2_DIR_WRITE(STATE) stepperE2.Step_Clock(STATE)
   #define E2_DIR_READ (stepperE2.getStatus() & STATUS_DIR)
 #else
+  #if E2_IS_TRINAMIC
+    extern TMC_CLASS(E2_DRIVER_TYPE) stepperE2;
+  #endif
   #if ENABLED(E2_IS_TMC26X)
     extern TMC26XStepper stepperE2;
     #define E2_ENABLE_INIT NOOP
     #define E2_ENABLE_WRITE(STATE) stepperE2.setEnabled(STATE)
     #define E2_ENABLE_READ stepperE2.isEnabled()
   #else
-    #if ENABLED(E2_IS_TMC2130)
-      extern TMC2130Stepper stepperE2;
-    #elif ENABLED(E2_IS_TMC2208)
-      extern TMC2208Stepper stepperE2;
-    #endif
     #define E2_ENABLE_INIT SET_OUTPUT(E2_ENABLE_PIN)
     #define E2_ENABLE_WRITE(STATE) WRITE(E2_ENABLE_PIN,STATE)
     #define E2_ENABLE_READ READ(E2_ENABLE_PIN)
@@ -396,17 +380,15 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E3_DIR_WRITE(STATE) stepperE3.Step_Clock(STATE)
   #define E3_DIR_READ (stepperE3.getStatus() & STATUS_DIR)
 #else
+  #if E3_IS_TRINAMIC
+    extern TMC_CLASS(E3_DRIVER_TYPE) stepperE3;
+  #endif
   #if ENABLED(E3_IS_TMC26X)
     extern TMC26XStepper stepperE3;
     #define E3_ENABLE_INIT NOOP
     #define E3_ENABLE_WRITE(STATE) stepperE3.setEnabled(STATE)
     #define E3_ENABLE_READ stepperE3.isEnabled()
   #else
-    #if ENABLED(E3_IS_TMC2130)
-      extern TMC2130Stepper stepperE3;
-    #elif ENABLED(E3_IS_TMC2208)
-      extern TMC2208Stepper stepperE3;
-    #endif
     #define E3_ENABLE_INIT SET_OUTPUT(E3_ENABLE_PIN)
     #define E3_ENABLE_WRITE(STATE) WRITE(E3_ENABLE_PIN,STATE)
     #define E3_ENABLE_READ READ(E3_ENABLE_PIN)
@@ -429,17 +411,15 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E4_DIR_WRITE(STATE) stepperE4.Step_Clock(STATE)
   #define E4_DIR_READ (stepperE4.getStatus() & STATUS_DIR)
 #else
+  #if E4_IS_TRINAMIC
+    extern TMC_CLASS(E4_DRIVER_TYPE) stepperE4;
+  #endif
   #if ENABLED(E4_IS_TMC26X)
     extern TMC26XStepper stepperE4;
     #define E4_ENABLE_INIT NOOP
     #define E4_ENABLE_WRITE(STATE) stepperE4.setEnabled(STATE)
     #define E4_ENABLE_READ stepperE4.isEnabled()
   #else
-    #if ENABLED(E4_IS_TMC2130)
-      extern TMC2130Stepper stepperE4;
-    #elif ENABLED(E4_IS_TMC2208)
-      extern TMC2208Stepper stepperE4;
-    #endif
     #define E4_ENABLE_INIT SET_OUTPUT(E4_ENABLE_PIN)
     #define E4_ENABLE_WRITE(STATE) WRITE(E4_ENABLE_PIN,STATE)
     #define E4_ENABLE_READ READ(E4_ENABLE_PIN)

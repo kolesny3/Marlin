@@ -137,41 +137,51 @@
   #if ENABLED(TMC_USE_SW_SPI)
     #define _TMC2130_DEFINE(ST) TMCMarlin<TMC2130Stepper> stepper##ST(TMC_##ST##_LABEL, ST##_CS_PIN, R_SENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
   #else
-    #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_CS_PIN, R_SENSE)
+    #define _TMC2130_DEFINE(ST) TMCMarlin<TMC2130Stepper> stepper##ST(TMC_##ST##_LABEL, ST##_CS_PIN, R_SENSE)
   #endif
-
   // Stepper objects of TMC2130 steppers used
   #if X_IS_TMC(2130)
+    static const char TMC_X_LABEL[] PROGMEM = "X";
     _TMC2130_DEFINE(X);
   #endif
   #if X2_IS_TMC(2130)
+    static const char TMC_X2_LABEL[] PROGMEM = "X2";
     _TMC2130_DEFINE(X2);
   #endif
   #if Y_IS_TMC(2130)
+    static const char TMC_Y_LABEL[] PROGMEM = "Y";
     _TMC2130_DEFINE(Y);
   #endif
   #if Y2_IS_TMC(2130)
+    static const char TMC_Y2_LABEL[] PROGMEM = "Y2";
     _TMC2130_DEFINE(Y2);
   #endif
   #if Z_IS_TMC(2130)
+    static const char TMC_Z_LABEL[] PROGMEM = "Z";
     _TMC2130_DEFINE(Z);
   #endif
   #if Z2_IS_TMC(2130)
+    static const char TMC_Z2_LABEL[] PROGMEM = "Z2";
     _TMC2130_DEFINE(Z2);
   #endif
   #if E0_IS_TMC(2130)
+    static const char TMC_E0_LABEL[] PROGMEM = "E0";
     _TMC2130_DEFINE(E0);
   #endif
   #if E1_IS_TMC(2130)
+    static const char TMC_E1_LABEL[] PROGMEM = "E1";
     _TMC2130_DEFINE(E1);
   #endif
   #if E2_IS_TMC(2130)
+    static const char TMC_E2_LABEL[] PROGMEM = "E2";
     _TMC2130_DEFINE(E2);
   #endif
   #if E3_IS_TMC(2130)
+    static const char TMC_E3_LABEL[] PROGMEM = "E3";
     _TMC2130_DEFINE(E3);
   #endif
   #if E4_IS_TMC(2130)
+    static const char TMC_E4_LABEL[] PROGMEM = "E4";
     _TMC2130_DEFINE(E4);
   #endif
 
@@ -287,6 +297,7 @@
 
   // Stepper objects of TMC2208 steppers used
   #if X_IS_TMC(2208)
+    static const char TMC_X_LABEL[] PROGMEM = "X";
     #ifdef X_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(X);
     #else
@@ -294,6 +305,7 @@
     #endif
   #endif
   #if X2_IS_TMC(2208)
+    static const char TMC_X2_LABEL[] PROGMEM = "X2";
     #ifdef X2_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(X2);
     #else
@@ -301,6 +313,7 @@
     #endif
   #endif
   #if Y_IS_TMC(2208)
+    static const char TMC_Y_LABEL[] PROGMEM = "Y";
     #ifdef Y_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(Y);
     #else
@@ -308,6 +321,7 @@
     #endif
   #endif
   #if Y2_IS_TMC(2208)
+    static const char TMC_Y2_LABEL[] PROGMEM = "Y2";
     #ifdef Y2_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(Y2);
     #else
@@ -315,6 +329,7 @@
     #endif
   #endif
   #if Z_IS_TMC(2208)
+    static const char TMC_Z_LABEL[] PROGMEM = "Z";
     #ifdef Z_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(Z);
     #else
@@ -322,6 +337,7 @@
     #endif
   #endif
   #if Z2_IS_TMC(2208)
+    static const char TMC_Z2_LABEL[] PROGMEM = "Z2";
     #ifdef Z2_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(Z2);
     #else
@@ -329,6 +345,7 @@
     #endif
   #endif
   #if E0_IS_TMC(2208)
+    static const char TMC_E0_LABEL[] PROGMEM = "E0";
     #ifdef E0_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(E0);
     #else
@@ -336,6 +353,7 @@
     #endif
   #endif
   #if E1_IS_TMC(2208)
+    static const char TMC_E1_LABEL[] PROGMEM = "E1";
     #ifdef E1_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(E1);
     #else
@@ -343,6 +361,7 @@
     #endif
   #endif
   #if E2_IS_TMC(2208)
+    static const char TMC_E2_LABEL[] PROGMEM = "E2";
     #ifdef E2_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(E2);
     #else
@@ -350,6 +369,7 @@
     #endif
   #endif
   #if E3_IS_TMC(2208)
+    static const char TMC_E3_LABEL[] PROGMEM = "E3";
     #ifdef E3_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(E3);
     #else
@@ -357,6 +377,7 @@
     #endif
   #endif
   #if E4_IS_TMC(2208)
+    static const char TMC_E4_LABEL[] PROGMEM = "E4";
     #ifdef E4_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(E4);
     #else

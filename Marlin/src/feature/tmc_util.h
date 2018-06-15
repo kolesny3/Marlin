@@ -30,47 +30,89 @@
 
 extern bool report_tmc_status;
 
-enum TMC_AxisEnum : char { TMC_X, TMC_Y, TMC_Z, TMC_X2, TMC_Y2, TMC_Z2, TMC_E0, TMC_E1, TMC_E2, TMC_E3, TMC_E4 };
+class TMCStorage {
+  public:
+    TMCStorage(const char* tmc_label) : label(tmc_label) {}
+    /*
+    TMC2130 XYZE
+    Before: 62746 / 3003 24% / 36%
+    62436 / 3049
+    62852 / 3049
+    */
+
+    #if ENABLED(MONITOR_DRIVER_STATUS)
+      uint8_t otpw_cnt = 0;
+    #endif
+
+    const char* label;
+    void printLabel() { serialprintPGM(label); }
+};
+
+template <class TMC>
+class TMCMarlin : public TMC, public TMCStorage {
+  public:
+    TMCMarlin(const char* tmc_label, uint16_t cs_pin, float RS) :
+      TMCStorage(tmc_label),
+      TMC(cs_pin, RS)
+      {}
+    TMCMarlin(const char* tmc_label, uint16_t CS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK) :
+      TMCStorage(tmc_label),
+      TMC(CS, RS, pinMOSI, pinMISO, pinSCK)
+      {}
+};
+template<>
+class TMCMarlin<TMC2208Stepper> : public TMC2208Stepper, public TMCStorage {
+  public:
+    TMCMarlin(const char* tmc_label, Stream * SerialPort, float RS, bool has_rx=true) :
+      TMCStorage(tmc_label),
+      TMC2208Stepper(SerialPort, RS, has_rx=true)
+      {}
+    TMCMarlin(const char* tmc_label, uint16_t RX, uint16_t TX, float RS, bool has_rx=true) :
+      TMCStorage(tmc_label),
+      TMC2208Stepper(RX, TX, RS, has_rx=true)
+      {}
+};
 
 constexpr uint32_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {
   return 12650000UL * msteps / (256 * thrs * spmm);
 }
 
-void _tmc_say_axis(const TMC_AxisEnum axis);
-void _tmc_say_current(const TMC_AxisEnum axis, const uint16_t curr);
-void _tmc_say_otpw(const TMC_AxisEnum axis, const bool otpw);
-void _tmc_say_otpw_cleared(const TMC_AxisEnum axis);
-void _tmc_say_pwmthrs(const TMC_AxisEnum axis, const uint32_t thrs);
-void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt);
-
 template<typename TMC>
-void tmc_get_current(TMC &st, const TMC_AxisEnum axis) {
-  _tmc_say_current(axis, st.getMilliamps());
+void tmc_get_current(TMC &st) {
+  st.printLabel();
+  SERIAL_ECHOLNPAIR(" driver current: ", st.getMilliamps());
 }
 template<typename TMC>
 void tmc_set_current(TMC &st, const int mA) {
   st.rms_current(mA);
 }
 template<typename TMC>
-void tmc_report_otpw(TMC &st, const TMC_AxisEnum axis) {
-  _tmc_say_otpw(axis, st.getOTPW());
+void tmc_report_otpw(TMC &st) {
+  st.printLabel();
+  SERIAL_ECHOPGM(" temperature prewarn triggered: ");
+  serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false"));
+  SERIAL_EOL();
 }
 template<typename TMC>
-void tmc_clear_otpw(TMC &st, const TMC_AxisEnum axis) {
+void tmc_clear_otpw(TMC &st) {
   st.clear_otpw();
-  _tmc_say_otpw_cleared(axis);
+  st.printLabel();
+  SERIAL_ECHOLNPGM(" prewarn flag cleared");
 }
 template<typename TMC>
-void tmc_get_pwmthrs(TMC &st, const TMC_AxisEnum axis, const uint16_t spmm) {
-  _tmc_say_pwmthrs(axis, _tmc_thrs(st.microsteps(), st.TPWMTHRS(), spmm));
+void tmc_get_pwmthrs(TMC &st, const uint16_t spmm) {
+  st.printLabel();
+  SERIAL_ECHOLNPAIR(" stealthChop max speed: ", _tmc_thrs(st.microsteps(), st.TPWMTHRS(), spmm));
 }
 template<typename TMC>
 void tmc_set_pwmthrs(TMC &st, const int32_t thrs, const uint32_t spmm) {
   st.TPWMTHRS(_tmc_thrs(st.microsteps(), thrs, spmm));
 }
 template<typename TMC>
-void tmc_get_sgt(TMC &st, const TMC_AxisEnum axis) {
-  _tmc_say_sgt(axis, st.sgt());
+void tmc_get_sgt(TMC &st) {
+  st.printLabel();
+  SERIAL_ECHOPGM(" homing sensitivity: ");
+  SERIAL_PRINTLN(st.sgt(), DEC);
 }
 template<typename TMC>
 void tmc_set_sgt(TMC &st, const int8_t sgt_val) {
