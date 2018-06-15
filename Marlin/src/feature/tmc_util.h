@@ -95,7 +95,7 @@ void monitor_tmc_driver();
   void tmc_sensorless_homing(TMCMarlin<TMC2130Stepper> &st, const bool enable=true);
 #endif
 
-#if ENABLED(HAVE_TMC2130)
+#if HAVE_TMC(2130) || HAVE_TMC(2660)
   void tmc_init_cs_pins();
 #endif
 

@@ -1110,21 +1110,6 @@
  * in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3 pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
  * You may also use software SPI if you wish to use general purpose IO pins.
  */
-//#define HAVE_TMC2130
-#if ENABLED(HAVE_TMC2130)  // Choose your axes here. This is mandatory!
-  //#define X_IS_TMC2130
-  //#define X2_IS_TMC2130
-  //#define Y_IS_TMC2130
-  //#define Y2_IS_TMC2130
-  //#define Z_IS_TMC2130
-  //#define Z2_IS_TMC2130
-  //#define E0_IS_TMC2130
-  //#define E1_IS_TMC2130
-  //#define E2_IS_TMC2130
-  //#define E3_IS_TMC2130
-  //#define E4_IS_TMC2130
-#endif
-
 /**
  * Enable this for SilentStepStick Trinamic TMC2208 UART-configurable stepper drivers.
  * Connect #_SERIAL_TX_PIN to the driver side PDN_UART pin with a 1K resistor.
@@ -1135,22 +1120,19 @@
  * You'll also need the TMC2208Stepper Arduino library
  * (https://github.com/teemuatlut/TMC2208Stepper).
  */
-//#define HAVE_TMC2208
-#if ENABLED(HAVE_TMC2208)  // Choose your axes here. This is mandatory!
-  //#define X_IS_TMC2208
-  //#define X2_IS_TMC2208
-  //#define Y_IS_TMC2208
-  //#define Y2_IS_TMC2208
-  //#define Z_IS_TMC2208
-  //#define Z2_IS_TMC2208
-  //#define E0_IS_TMC2208
-  //#define E1_IS_TMC2208
-  //#define E2_IS_TMC2208
-  //#define E3_IS_TMC2208
-  //#define E4_IS_TMC2208
-#endif
+#define  X_DRIVER_TYPE 2130 // [2130, 2208, 2660]
+//#define  Y_DRIVER_TYPE 2130
+//#define  Z_DRIVER_TYPE 2130
+//#define X2_DRIVER_TYPE 2130
+//#define Y2_DRIVER_TYPE 2130
+//#define Z2_DRIVER_TYPE 2130
+//#define E0_DRIVER_TYPE 2130
+//#define E1_DRIVER_TYPE 2130
+//#define E2_DRIVER_TYPE 2130
+//#define E3_DRIVER_TYPE 2130
+//#define E4_DRIVER_TYPE 2130
 
-#if ENABLED(HAVE_TMC2130) || ENABLED(HAVE_TMC2208)
+#if HAS_TRINAMIC // TMC2130, TMC2208, TMC2660
 
   #define R_SENSE           0.11  // R_sense resistor for SilentStepStick2130
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
@@ -1300,7 +1282,7 @@
    */
   #define TMC_ADV() {  }
 
-#endif // TMC2130 || TMC2208
+#endif // HAS_TRINAMIC // TMC2130, TMC2208, TMC2660
 
 // @section L6470
 

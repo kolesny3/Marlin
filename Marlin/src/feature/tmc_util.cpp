@@ -52,7 +52,7 @@ bool report_tmc_status = false;
     bool is_ot;
     bool is_error;
   };
-  #if ENABLED(HAVE_TMC2130)
+  #if HAVE_TMC(2130)
     static uint32_t get_pwm_scale(TMC2130Stepper &st) { return st.PWM_SCALE(); }
     static uint8_t get_status_response(TMC2130Stepper &st) { return st.status_response & 0xF; }
     static TMC_driver_data get_driver_data(TMC2130Stepper &st) {
@@ -70,7 +70,7 @@ bool report_tmc_status = false;
       return data;
     }
   #endif
-  #if ENABLED(HAVE_TMC2208)
+  #if HAVE_TMC(2208)
     static uint32_t get_pwm_scale(TMC2208Stepper &st) { return st.pwm_scale_sum(); }
     static uint8_t get_status_response(TMC2208Stepper &st) {
       uint32_t drv_status = st.DRV_STATUS();
@@ -159,21 +159,21 @@ bool report_tmc_status = false;
     }
   }
 
-  #define HAS_HW_COMMS(ST) ENABLED(ST##_IS_TMC2130)|| (ENABLED(ST##_IS_TMC2208) && defined(ST##_HARDWARE_SERIAL))
+  #define HAS_HW_COMMS(ST) ST##_IS_TMC(2130) || ST##_IS_TMC(2660) || (ST##_IS_TMC(2208) && defined(ST##_HARDWARE_SERIAL))
 
   void monitor_tmc_driver() {
     static millis_t next_cOT = 0;
     if (ELAPSED(millis(), next_cOT)) {
       next_cOT = millis() + 500;
-      #if HAS_HW_COMMS(X) || ENABLED(IS_TRAMS)
+      #if HAS_HW_COMMS(X)
         static uint8_t x_otpw_cnt = 0;
         monitor_tmc_driver(stepperX, TMC_X, x_otpw_cnt);
       #endif
-      #if HAS_HW_COMMS(Y) || ENABLED(IS_TRAMS)
+      #if HAS_HW_COMMS(Y)
         static uint8_t y_otpw_cnt = 0;
         monitor_tmc_driver(stepperY, TMC_Y, y_otpw_cnt);
       #endif
-      #if HAS_HW_COMMS(Z) || ENABLED(IS_TRAMS)
+      #if HAS_HW_COMMS(Z)
         static uint8_t z_otpw_cnt = 0;
         monitor_tmc_driver(stepperZ, TMC_Z, z_otpw_cnt);
       #endif
@@ -189,7 +189,7 @@ bool report_tmc_status = false;
         static uint8_t z2_otpw_cnt = 0;
         monitor_tmc_driver(stepperZ2, TMC_Z, z2_otpw_cnt);
       #endif
-      #if HAS_HW_COMMS(E0) || ENABLED(IS_TRAMS)
+      #if HAS_HW_COMMS(E0)
         static uint8_t e0_otpw_cnt = 0;
         monitor_tmc_driver(stepperE0, TMC_E0, e0_otpw_cnt);
       #endif
@@ -311,7 +311,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
     SERIAL_EOL();
   }
 
-  #if ENABLED(HAVE_TMC2130)
+  #if HAVE_TMC(2130)
     static void tmc_status(TMC2130Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.PWM_SCALE(), DEC); break;
@@ -331,7 +331,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
     }
   #endif
 
-  #if ENABLED(HAVE_TMC2208)
+  #if HAVE_TMC(2208)
     static void tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_TSTEP: { uint32_t data = 0; st.TSTEP(&data); SERIAL_PROTOCOL(data); break; }
@@ -553,7 +553,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
     TMC_REPORT("Stallguard thrs",    TMC_SGT);
 
     DRV_REPORT("DRVSTATUS",          TMC_DRV_CODES);
-    #if ENABLED(HAVE_TMC2130)
+    #if HAVE_TMC(2130)
       DRV_REPORT("stallguard\t",     TMC_STALLGUARD);
       DRV_REPORT("sg_result\t",      TMC_SG_RESULT);
       DRV_REPORT("fsactive\t",       TMC_FSACTIVE);
@@ -565,7 +565,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
     DRV_REPORT("s2ga\t",             TMC_S2GA);
     DRV_REPORT("otpw\t",             TMC_DRV_OTPW);
     DRV_REPORT("ot\t",               TMC_OT);
-    #if ENABLED(HAVE_TMC2208)
+    #if HAVE_TMC(2208)
       DRV_REPORT("157C\t",           TMC_T157);
       DRV_REPORT("150C\t",           TMC_T150);
       DRV_REPORT("143C\t",           TMC_T143);
@@ -591,40 +591,40 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
 
 #endif // SENSORLESS_HOMING
 
-#if ENABLED(HAVE_TMC2130)
+#if HAVE_TMC(2130) || HAVE_TMC(2660)
   #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
   void tmc_init_cs_pins() {
-    #if ENABLED(X_IS_TMC2130)
+    #if X_IS_TMC(2130) || X_IS_TMC(2660)
       SET_CS_PIN(X);
     #endif
-    #if ENABLED(Y_IS_TMC2130)
+    #if Y_IS_TMC(2130) || Y_IS_TMC(2660)
       SET_CS_PIN(Y);
     #endif
-    #if ENABLED(Z_IS_TMC2130)
+    #if Z_IS_TMC(2130) || Z_IS_TMC(2660)
       SET_CS_PIN(Z);
     #endif
-    #if ENABLED(X2_IS_TMC2130)
+    #if X2_IS_TMC(2130) || X2_IS_TMC(2660)
       SET_CS_PIN(X2);
     #endif
-    #if ENABLED(Y2_IS_TMC2130)
+    #if Y2_IS_TMC(2130) || Y2_IS_TMC(2660)
       SET_CS_PIN(Y2);
     #endif
-    #if ENABLED(Z2_IS_TMC2130)
+    #if Z2_IS_TMC(2130) || Z2_IS_TMC(2660)
       SET_CS_PIN(Z2);
     #endif
-    #if ENABLED(E0_IS_TMC2130)
+    #if E0_IS_TMC(2130) || E0_IS_TMC(2660)
       SET_CS_PIN(E0);
     #endif
-    #if ENABLED(E1_IS_TMC2130)
+    #if E1_IS_TMC(2130) || E1_IS_TMC(2660)
       SET_CS_PIN(E1);
     #endif
-    #if ENABLED(E2_IS_TMC2130)
+    #if E2_IS_TMC(2130) || E2_IS_TMC(2660)
       SET_CS_PIN(E2);
     #endif
-    #if ENABLED(E3_IS_TMC2130)
+    #if E3_IS_TMC(2130) || E3_IS_TMC(2660)
       SET_CS_PIN(E3);
     #endif
-    #if ENABLED(E4_IS_TMC2130)
+    #if E4_IS_TMC(2130) || E4_IS_TMC(2660)
       SET_CS_PIN(E4);
     #endif
   }

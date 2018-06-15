@@ -23,6 +23,8 @@
 #ifndef _MARLIN_CONFIG_H_
 #define _MARLIN_CONFIG_H_
 
+#include "../feature/tmc_models.h"
+
 #include "MarlinConfigPre.h"
 
 #include HAL_PATH(../HAL, HAL.h)
