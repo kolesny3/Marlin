@@ -814,7 +814,7 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(tmc_hybrid_threshold);
 
     //
-    // TMC2130 Sensorless homing threshold
+    // TMC2130 / TMC2660 Sensorless homing threshold
     //
     int16_t tmc_sgt[XYZ] = {
       #if ENABLED(SENSORLESS_HOMING)
@@ -1300,7 +1300,7 @@ void MarlinSettings::postprocess() {
       if (!validating) reset_stepper_drivers();
 
       //
-      // TMC2130 Stepper Settings
+      // TMC2130 / TMC2208 / TMC2660 Stepper Settings
       //
 
       _FIELD_TEST(tmc_stepper_current);
@@ -1395,7 +1395,7 @@ void MarlinSettings::postprocess() {
       #endif
 
       /*
-       * TMC2130 Sensorless homing threshold.
+       * TMC2130 / TMC2660 Sensorless homing threshold.
        * X and X2 use the same value
        * Y and Y2 use the same value
        * Z and Z2 use the same value

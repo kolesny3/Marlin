@@ -73,6 +73,9 @@
     void tmc2208_serial_begin();
     void tmc2208_init_to_defaults();
   #endif
+  #if HAVE_TMC(2660)
+    void tmc2660_init_to_defaults();
+  #endif
 #endif
 
 // L6470 has STEP on normal pins, but DIR/ENABLE via SPI
@@ -102,6 +105,10 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     extern TMC26XStepper stepperX;
     #define X_ENABLE_INIT NOOP
     #define X_ENABLE_WRITE(STATE) stepperX.setEnabled(STATE)
+    #define X_ENABLE_READ stepperX.isEnabled()
+  #elif X_IS_TMC(2660)
+    #define X_ENABLE_INIT NOOP
+    #define X_ENABLE_WRITE(STATE) stepperX.toff((STATE)==X_ENABLE_ON ? stepperX.savedToff() : 0)
     #define X_ENABLE_READ stepperX.isEnabled()
   #else
     #define X_ENABLE_INIT SET_OUTPUT(X_ENABLE_PIN)
@@ -134,6 +141,10 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Y_ENABLE_INIT NOOP
     #define Y_ENABLE_WRITE(STATE) stepperY.setEnabled(STATE)
     #define Y_ENABLE_READ stepperY.isEnabled()
+  #elif Y_IS_TMC(2660)
+    #define Y_ENABLE_INIT NOOP
+    #define Y_ENABLE_WRITE(STATE) stepperY.toff((STATE)==Y_ENABLE_ON ? stepperY.savedToff() : 0)
+    #define Y_ENABLE_READ stepperY.isEnabled()
   #else
     #define Y_ENABLE_INIT SET_OUTPUT(Y_ENABLE_PIN)
     #define Y_ENABLE_WRITE(STATE) WRITE(Y_ENABLE_PIN,STATE)
@@ -164,6 +175,10 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     extern TMC26XStepper stepperZ;
     #define Z_ENABLE_INIT NOOP
     #define Z_ENABLE_WRITE(STATE) stepperZ.setEnabled(STATE)
+    #define Z_ENABLE_READ stepperZ.isEnabled()
+  #elif Z_IS_TMC(2660)
+    #define Z_ENABLE_INIT NOOP
+    #define Z_ENABLE_WRITE(STATE) stepperZ.toff((STATE)==Z_ENABLE_ON ? stepperZ.savedToff() : 0)
     #define Z_ENABLE_READ stepperZ.isEnabled()
   #else
     #define Z_ENABLE_INIT SET_OUTPUT(Z_ENABLE_PIN)
@@ -196,6 +211,10 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
       extern TMC26XStepper stepperX2;
       #define X2_ENABLE_INIT NOOP
       #define X2_ENABLE_WRITE(STATE) stepperX2.setEnabled(STATE)
+      #define X2_ENABLE_READ stepperX2.isEnabled()
+    #elif X2_IS_TMC(2660)
+      #define X2_ENABLE_INIT NOOP
+      #define X2_ENABLE_WRITE(STATE) stepperX2.toff((STATE)==X_ENABLE_ON ? stepperX2.savedToff() : 0)
       #define X2_ENABLE_READ stepperX2.isEnabled()
     #else
       #define X2_ENABLE_INIT SET_OUTPUT(X2_ENABLE_PIN)
@@ -230,6 +249,10 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
       #define Y2_ENABLE_INIT NOOP
       #define Y2_ENABLE_WRITE(STATE) stepperY2.setEnabled(STATE)
       #define Y2_ENABLE_READ stepperY2.isEnabled()
+    #elif Y2_IS_TMC(2660)
+      #define Y2_ENABLE_INIT NOOP
+      #define Y2_ENABLE_WRITE(STATE) stepperY2.toff((STATE)==Y_ENABLE_ON ? stepperY2.savedToff() : 0)
+      #define Y2_ENABLE_READ stepperY2.isEnabled()
     #else
       #define Y2_ENABLE_INIT SET_OUTPUT(Y2_ENABLE_PIN)
       #define Y2_ENABLE_WRITE(STATE) WRITE(Y2_ENABLE_PIN,STATE)
@@ -263,6 +286,10 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
       #define Z2_ENABLE_INIT NOOP
       #define Z2_ENABLE_WRITE(STATE) stepperZ2.setEnabled(STATE)
       #define Z2_ENABLE_READ stepperZ2.isEnabled()
+    #elif Z2_IS_TMC(2660)
+      #define Z2_ENABLE_INIT NOOP
+      #define Z2_ENABLE_WRITE(STATE) stepperZ2.toff((STATE)==Z_ENABLE_ON ? stepperZ2.savedToff() : 0)
+      #define Z2_ENABLE_READ stepperZ2.isEnabled()
     #else
       #define Z2_ENABLE_INIT SET_OUTPUT(Z2_ENABLE_PIN)
       #define Z2_ENABLE_WRITE(STATE) WRITE(Z2_ENABLE_PIN,STATE)
@@ -295,6 +322,10 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define E0_ENABLE_INIT NOOP
     #define E0_ENABLE_WRITE(STATE) stepperE0.setEnabled(STATE)
     #define E0_ENABLE_READ stepperE0.isEnabled()
+  #elif E0_IS_TMC(2660)
+    #define E0_ENABLE_INIT NOOP
+    #define E0_ENABLE_WRITE(STATE) stepperE0.toff((STATE)==E_ENABLE_ON ? stepperE0.savedToff() : 0)
+    #define E0_ENABLE_READ stepperE0.isEnabled()
   #else
     #define E0_ENABLE_INIT SET_OUTPUT(E0_ENABLE_PIN)
     #define E0_ENABLE_WRITE(STATE) WRITE(E0_ENABLE_PIN,STATE)
@@ -325,6 +356,10 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     extern TMC26XStepper stepperE1;
     #define E1_ENABLE_INIT NOOP
     #define E1_ENABLE_WRITE(STATE) stepperE1.setEnabled(STATE)
+    #define E1_ENABLE_READ stepperE1.isEnabled()
+  #elif E1_IS_TMC(2660)
+    #define E1_ENABLE_INIT NOOP
+    #define E1_ENABLE_WRITE(STATE) stepperE1.toff((STATE)==E_ENABLE_ON ? stepperE1.savedToff() : 0)
     #define E1_ENABLE_READ stepperE1.isEnabled()
   #else
     #define E1_ENABLE_INIT SET_OUTPUT(E1_ENABLE_PIN)
@@ -357,6 +392,10 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define E2_ENABLE_INIT NOOP
     #define E2_ENABLE_WRITE(STATE) stepperE2.setEnabled(STATE)
     #define E2_ENABLE_READ stepperE2.isEnabled()
+  #elif E2_IS_TMC(2660)
+    #define E2_ENABLE_INIT NOOP
+    #define E2_ENABLE_WRITE(STATE) stepperE2.toff((STATE)==E_ENABLE_ON ? stepperE2.savedToff() : 0)
+    #define E2_ENABLE_READ stepperE2.isEnabled()
   #else
     #define E2_ENABLE_INIT SET_OUTPUT(E2_ENABLE_PIN)
     #define E2_ENABLE_WRITE(STATE) WRITE(E2_ENABLE_PIN,STATE)
@@ -388,6 +427,10 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define E3_ENABLE_INIT NOOP
     #define E3_ENABLE_WRITE(STATE) stepperE3.setEnabled(STATE)
     #define E3_ENABLE_READ stepperE3.isEnabled()
+  #elif E3_IS_TMC(2660)
+    #define E3_ENABLE_INIT NOOP
+    #define E3_ENABLE_WRITE(STATE) stepperE3.toff((STATE)==E_ENABLE_ON ? stepperE3.savedToff() : 0)
+    #define E3_ENABLE_READ stepperE3.isEnabled()
   #else
     #define E3_ENABLE_INIT SET_OUTPUT(E3_ENABLE_PIN)
     #define E3_ENABLE_WRITE(STATE) WRITE(E3_ENABLE_PIN,STATE)
@@ -418,6 +461,10 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     extern TMC26XStepper stepperE4;
     #define E4_ENABLE_INIT NOOP
     #define E4_ENABLE_WRITE(STATE) stepperE4.setEnabled(STATE)
+    #define E4_ENABLE_READ stepperE4.isEnabled()
+  #elif E4_IS_TMC(2660)
+    #define E4_ENABLE_INIT NOOP
+    #define E4_ENABLE_WRITE(STATE) stepperE4.toff((STATE)==E_ENABLE_ON ? stepperE4.savedToff() : 0)
     #define E4_ENABLE_READ stepperE4.isEnabled()
   #else
     #define E4_ENABLE_INIT SET_OUTPUT(E4_ENABLE_PIN)

@@ -495,6 +495,117 @@
   }
 #endif // HAVE_TMC2208
 
+//
+// TMC2660 Driver objects and inits
+//
+#if HAVE_TMC(2660)
+
+  #include <SPI.h>
+  #include "planner.h"
+  #include "../core/enum.h"
+
+  #if ENABLED(TMC_USE_SW_SPI)
+    #define _TMC2660_DEFINE(ST) TMCMarlin<TMC2660Stepper> stepper##ST(TMC_##ST##_LABEL, ST##_CS_PIN, R_SENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+  #else
+    #define _TMC2660_DEFINE(ST) TMCMarlin<TMC2660Stepper> stepper##ST(TMC_##ST##_LABEL, ST##_CS_PIN, R_SENSE)
+  #endif
+
+  // Stepper objects of TMC2660 steppers used
+  #if X_IS_TMC(2660)
+    static const char TMC_X_LABEL[] PROGMEM = "X";
+    _TMC2660_DEFINE(X);
+  #endif
+  #if X2_IS_TMC(2660)
+    static const char TMC_X2_LABEL[] PROGMEM = "X2";
+    _TMC2660_DEFINE(X2);
+  #endif
+  #if Y_IS_TMC(2660)
+    static const char TMC_Y_LABEL[] PROGMEM = "Y";
+    _TMC2660_DEFINE(Y);
+  #endif
+  #if Y2_IS_TMC(2660)
+    static const char TMC_Y2_LABEL[] PROGMEM = "Y2";
+    _TMC2660_DEFINE(Y2);
+  #endif
+  #if Z_IS_TMC(2660)
+    static const char TMC_Z_LABEL[] PROGMEM = "Z";
+    _TMC2660_DEFINE(Z);
+  #endif
+  #if Z2_IS_TMC(2660)
+    static const char TMC_Z2_LABEL[] PROGMEM = "Z2";
+    _TMC2660_DEFINE(Z2);
+  #endif
+  #if E0_IS_TMC(2660)
+    static const char TMC_E0_LABEL[] PROGMEM = "E0";
+    _TMC2660_DEFINE(E0);
+  #endif
+  #if E1_IS_TMC(2660)
+    static const char TMC_E1_LABEL[] PROGMEM = "E1";
+    _TMC2660_DEFINE(E1);
+  #endif
+  #if E2_IS_TMC(2660)
+    static const char TMC_E2_LABEL[] PROGMEM = "E2";
+    _TMC2660_DEFINE(E2);
+  #endif
+  #if E3_IS_TMC(2660)
+    static const char TMC_E3_LABEL[] PROGMEM = "E3";
+    _TMC2660_DEFINE(E3);
+  #endif
+  #if E4_IS_TMC(2660)
+    static const char TMC_E4_LABEL[] PROGMEM = "E4";
+    _TMC2660_DEFINE(E4);
+  #endif
+
+  void tmc2660_init(TMCMarlin<TMC2660Stepper> &st, const uint16_t mA, const uint16_t microsteps) {
+    st.begin();
+    st.rms_current(mA);
+    st.microsteps(microsteps);
+    st.blank_time(24);
+    st.toff(5); // Only enables the driver if used with stealthChop
+    st.intpol(INTERPOLATE);
+    //st.hysteresis_start(3);
+    //st.hysteresis_end(2);
+  }
+
+  #define _TMC2660_INIT(ST) tmc2660_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS)
+
+  void tmc2660_init_to_defaults() {
+    #if ENABLED(X_IS_TMC2660)
+      _TMC2660_INIT( X);
+    #endif
+    #if ENABLED(X2_IS_TMC2660)
+      _TMC2660_INIT(X2);
+    #endif
+    #if ENABLED(Y_IS_TMC2660)
+      _TMC2660_INIT( Y);
+    #endif
+    #if ENABLED(Y2_IS_TMC2660)
+      _TMC2660_INIT(Y2);
+    #endif
+    #if ENABLED(Z_IS_TMC2660)
+      _TMC2660_INIT( Z);
+    #endif
+    #if ENABLED(Z2_IS_TMC2660)
+      _TMC2660_INIT(Z2);
+    #endif
+    #if ENABLED(E0_IS_TMC2660)
+      _TMC2660_INIT(E0);
+    #endif
+    #if ENABLED(E1_IS_TMC2660)
+      _TMC2660_INIT(E1);
+    #endif
+    #if ENABLED(E2_IS_TMC2660)
+      _TMC2660_INIT(E2);
+    #endif
+    #if ENABLED(E3_IS_TMC2660)
+      _TMC2660_INIT(E3);
+    #endif
+    #if ENABLED(E4_IS_TMC2660)
+      _TMC2660_INIT(E4);
+    #endif
+  }
+#endif // HAVE_TMC2660
+
 void restore_stepper_drivers() {
   #if X_IS_TRINAMIC
     stepperX.push();
@@ -542,6 +653,10 @@ void reset_stepper_drivers() {
   #if HAVE_TMC(2208)
     delay(100);
     tmc2208_init_to_defaults();
+  #endif
+  #if HAVE_TMC(2660)
+    delay(100);
+    tmc2660_init_to_defaults();
   #endif
   #ifdef TMC_ADV
     TMC_ADV()

@@ -93,6 +93,23 @@ bool report_tmc_status = false;
       return data;
     }
   #endif
+  #if HAVE_TMC(2660)
+    static uint32_t get_pwm_scale(TMC2660Stepper) { return 0; }
+    static uint8_t get_status_response(TMC2660Stepper) { return 0; }
+    static TMC_driver_data get_driver_data(TMC2660Stepper &st) {
+      constexpr uint32_t OTPW_bm = 0x4UL;
+      constexpr uint8_t OTPW_bp = 2;
+      constexpr uint32_t OT_bm = 0x2UL;
+      constexpr uint8_t OT_bp = 1;
+      constexpr uint8_t DRIVER_ERROR_bm = 0x1EUL;
+      TMC_driver_data data;
+      data.drv_status = st.DRVSTATUS();
+      data.is_otpw = (data.drv_status & OTPW_bm) >> OTPW_bp;
+      data.is_ot = (data.drv_status & OT_bm) >> OT_bp;
+      data.is_error = data.drv_status & DRIVER_ERROR_bm;
+      return data;
+    }
+  #endif
 
   template<typename TMC>
   void monitor_tmc_driver(TMCMarlin<TMC> &st) {
@@ -280,7 +297,6 @@ bool report_tmc_status = false;
     static void tmc_status(TMC2130Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.PWM_SCALE(), DEC); break;
-        case TMC_TSTEP: SERIAL_ECHO(st.TSTEP()); break;
         case TMC_SGT: SERIAL_PRINT(st.sgt(), DEC); break;
         case TMC_STEALTHCHOP: serialprintPGM(st.en_pwm_mode() ? PSTR("true") : PSTR("false")); break;
         default: break;
@@ -291,6 +307,7 @@ bool report_tmc_status = false;
         case TMC_STALLGUARD: if (st.stallguard()) SERIAL_CHAR('X'); break;
         case TMC_SG_RESULT:  SERIAL_PRINT(st.sg_result(), DEC);   break;
         case TMC_FSACTIVE:   if (st.fsactive())   SERIAL_CHAR('X'); break;
+        case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC); break;
         default: break;
       }
     }
@@ -299,7 +316,6 @@ bool report_tmc_status = false;
   #if HAVE_TMC(2208)
     static void tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch (i) {
-        case TMC_TSTEP: { uint32_t data = 0; st.TSTEP(&data); SERIAL_PROTOCOL(data); break; }
         case TMC_PWM_SCALE: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
         case TMC_STEALTHCHOP: serialprintPGM(st.stealth() ? PSTR("true") : PSTR("false")); break;
         case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('X'); break;
@@ -313,9 +329,14 @@ bool report_tmc_status = false;
         case TMC_T150: if (st.t150()) SERIAL_CHAR('X'); break;
         case TMC_T143: if (st.t143()) SERIAL_CHAR('X'); break;
         case TMC_T120: if (st.t120()) SERIAL_CHAR('X'); break;
+        case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC); break;
         default: break;
       }
     }
+  #endif
+
+  #if HAVE_TMC(2660)
+    static void tmc_parse_drv_status(TMC2660Stepper, const TMC_drv_status_enum) { }
   #endif
 
   template <typename TMC>
@@ -343,6 +364,7 @@ bool report_tmc_status = false;
       case TMC_VSENSE: serialprintPGM(st.vsense() ? PSTR("1=.18") : PSTR("0=.325")); break;
 
       case TMC_MICROSTEPS: SERIAL_ECHO(st.microsteps()); break;
+      case TMC_TSTEP: SERIAL_ECHO(st.TSTEP()); break;
       case TMC_TPWMTHRS: {
           uint32_t tpwmthrs_val = st.TPWMTHRS();
           SERIAL_ECHO(tpwmthrs_val);
@@ -366,6 +388,32 @@ bool report_tmc_status = false;
     }
   }
 
+  template<>
+  void tmc_status(TMCMarlin<TMC2660Stepper> &st, const TMC_debug_enum i, const float) {
+    SERIAL_ECHO('\t');
+    switch (i) {
+      case TMC_CODES: st.printLabel(); break;
+      case TMC_ENABLED: serialprintPGM(st.isEnabled() ? PSTR("true") : PSTR("false")); break;
+      case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
+      case TMC_RMS_CURRENT: SERIAL_PROTOCOL(st.rms_current()); break;
+      case TMC_MAX_CURRENT: SERIAL_PRINT((float)st.rms_current() * 1.41, 0); break;
+      case TMC_IRUN:
+        SERIAL_PRINT(st.cs(), DEC);
+        SERIAL_ECHOPGM("/31");
+        break;
+      case TMC_VSENSE: serialprintPGM(st.vsense() ? PSTR("1=.18") : PSTR("0=.325")); break;
+      case TMC_MICROSTEPS: SERIAL_ECHO(st.microsteps()); break;
+      //case TMC_OTPW: serialprintPGM(st.otpw() ? PSTR("true") : PSTR("false")); break;
+      //case TMC_OTPW_TRIGGERED: serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false")); break;
+      case TMC_SGT: SERIAL_PRINT(st.sgt(), DEC); break;
+      case TMC_TOFF: SERIAL_PRINT(st.toff(), DEC); break;
+      case TMC_TBL: SERIAL_PRINT(st.blank_time(), DEC); break;
+      case TMC_HEND: SERIAL_PRINT(st.hysteresis_end(), DEC); break;
+      case TMC_HSTRT: SERIAL_PRINT(st.hysteresis_start(), DEC); break;
+      default: break;
+    }
+  }
+
   template <typename TMC>
   static void tmc_parse_drv_status(TMC &st, const TMC_drv_status_enum i) {
     SERIAL_CHAR('\t');
@@ -378,7 +426,6 @@ bool report_tmc_status = false;
       case TMC_S2GA:          if (st.s2ga())         SERIAL_CHAR('X'); break;
       case TMC_DRV_OTPW:      if (st.otpw())         SERIAL_CHAR('X'); break;
       case TMC_OT:            if (st.ot())           SERIAL_CHAR('X'); break;
-      case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC);       break;
       case TMC_DRV_STATUS_HEX:
         st.printLabel();
         drv_status_print_hex(st.DRV_STATUS());
@@ -556,6 +603,9 @@ bool report_tmc_status = false;
     #endif
     st.diag1_stall(enable ? 1 : 0);
   }
+  void tmc_sensorless_homing(TMCMarlin<TMC2660Stepper> &st, const bool enable) {
+    // TODO
+  }
 
 #endif // SENSORLESS_HOMING
 
@@ -596,6 +646,6 @@ bool report_tmc_status = false;
       SET_CS_PIN(E4);
     #endif
   }
-#endif // HAVE_TMC2130
+#endif // HAVE_TMC2130 HAVE_TMC2660
 
 #endif // HAS_TRINAMIC
