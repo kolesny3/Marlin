@@ -220,19 +220,28 @@
     st.begin();
     st.rms_current(mA, HOLD_MULTIPLIER);
     st.microsteps(microsteps);
-    st.tbl(1);
-    st.toff(3); // Only enables the driver if used with stealthChop
-    st.intpol(INTERPOLATE);
+
+    CHOPCONF_t chopconf;
+    chopconf.tbl = 1;
+    chopconf.toff = 3;
+    chopconf.intpol = INTERPOLATE;
+    chopconf.hstrt = 2;
+    chopconf.hend = -1;
+    st.CHOPCONF(chopconf.sr);
+
     st.iholddelay(10);
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
-    st.hysteresis_start(3);
-    st.hysteresis_end(2);
+
     #if ENABLED(STEALTHCHOP)
-      st.pwm_freq(0b01); // f_pwm = 2/683 f_clk
-      st.pwm_autoscale(true);
-      st.pwm_grad(5);
-      st.pwm_ampl(255);
       st.en_pwm_mode(true);
+
+      PWMCONF_t pwmconf;
+      pwmconf.pwm_freq = 0b01; // f_pwm = 2/683 f_clk
+      pwmconf.pwm_autoscale = true;
+      pwmconf.pwm_grad = 5;
+      pwmconf.pwm_ampl = 180;
+      st.PWMCONF(pwmconf.sr);
+
       #if ENABLED(HYBRID_THRESHOLD)
         st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
       #else
@@ -372,27 +381,36 @@
   }
 
   void tmc_init(TMCMarlin<TMC2208Stepper> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
-    st.pdn_disable(true); // Use UART
-    st.mstep_reg_select(true); // Select microsteps with UART
-    st.I_scale_analog(false);
     st.rms_current(mA, HOLD_MULTIPLIER);
     st.microsteps(microsteps);
-    st.blank_time(24);
-    st.toff(5);
-    st.intpol(INTERPOLATE);
+
+    GCONF_2208_t gconf;
+    gconf.pdn_disable = true; // Use UART
+    gconf.mstep_reg_select = true; // Select microsteps with UART
+    gconf.i_scale_analog = false;
+
+    CHOPCONF_2208_t chopconf;
+    chopconf.tbl = 0b01; // blank_time = 24
+    chopconf.toff = 5;
+    chopconf.intpol = INTERPOLATE;
+    chopconf.hstrt = 2;
+    chopconf.hend = -1;
+    st.CHOPCONF(chopconf.sr);
+
     st.iholddelay(10);
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
-    st.hysteresis_start(3);
-    st.hysteresis_end(2);
     #if ENABLED(STEALTHCHOP)
-      st.pwm_lim(12);
-      st.pwm_reg(8);
-      st.pwm_autograd(1);
-      st.pwm_autoscale(1);
-      st.pwm_freq(1);
-      st.pwm_grad(14);
-      st.pwm_ofs(36);
-      st.en_spreadCycle(false);
+      gconf.en_spreadcycle = false;
+
+      PWMCONF_2208_t pwmconf;
+      pwmconf.pwm_lim = 12;
+      pwmconf.pwm_reg = 8;
+      pwmconf.pwm_autograd = true;
+      pwmconf.pwm_autoscale = true;
+      pwmconf.pwm_freq = 0b01;
+      pwmconf.pwm_grad = 14;
+      pwmconf.pwm_ofs = 36;
+      st.PWMCONF(pwmconf.sr);
       #if ENABLED(HYBRID_THRESHOLD)
         st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
       #else
@@ -400,8 +418,9 @@
         UNUSED(spmm);
       #endif
     #else
-      st.en_spreadCycle(true);
+      gconf.en_spreadcycle = true;
     #endif
+    st.GCONF(gconf.sr);
     st.GSTAT(0b111); // Clear
     delay(200);
   }
