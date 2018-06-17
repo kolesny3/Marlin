@@ -125,6 +125,44 @@
   }
 #endif // HAVE_TMC26X
 
+#if HAS_TRINAMIC
+  #if X_IS_TRINAMIC
+    static const char TMC_X_LABEL[] PROGMEM = "X";
+  #endif
+  #if X2_IS_TRINAMIC
+    static const char TMC_X2_LABEL[] PROGMEM = "X2";
+  #endif
+  #if Y_IS_TRINAMIC
+    static const char TMC_Y_LABEL[] PROGMEM = "Y";
+  #endif
+  #if Y2_IS_TRINAMIC
+    static const char TMC_Y2_LABEL[] PROGMEM = "Y2";
+  #endif
+  #if Z_IS_TRINAMIC
+    static const char TMC_Z_LABEL[] PROGMEM = "Z";
+  #endif
+  #if Z2_IS_TRINAMIC
+    static const char TMC_Z2_LABEL[] PROGMEM = "Z2";
+  #endif
+  #if E0_IS_TRINAMIC
+    static const char TMC_E0_LABEL[] PROGMEM = "E0";
+  #endif
+  #if E1_IS_TRINAMIC
+    static const char TMC_E1_LABEL[] PROGMEM = "E1";
+  #endif
+  #if E2_IS_TRINAMIC
+    static const char TMC_E2_LABEL[] PROGMEM = "E2";
+  #endif
+  #if E3_IS_TRINAMIC
+    static const char TMC_E3_LABEL[] PROGMEM = "E3";
+  #endif
+  #if E4_IS_TRINAMIC
+    static const char TMC_E4_LABEL[] PROGMEM = "E4";
+  #endif
+
+  #define _TMC_INIT(ST, SPMM) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, SPMM)
+#endif
+
 //
 // TMC2130 Driver objects and inits
 //
@@ -141,51 +179,40 @@
   #endif
   // Stepper objects of TMC2130 steppers used
   #if X_IS_TMC(2130)
-    static const char TMC_X_LABEL[] PROGMEM = "X";
     _TMC2130_DEFINE(X);
   #endif
   #if X2_IS_TMC(2130)
-    static const char TMC_X2_LABEL[] PROGMEM = "X2";
     _TMC2130_DEFINE(X2);
   #endif
   #if Y_IS_TMC(2130)
-    static const char TMC_Y_LABEL[] PROGMEM = "Y";
     _TMC2130_DEFINE(Y);
   #endif
   #if Y2_IS_TMC(2130)
-    static const char TMC_Y2_LABEL[] PROGMEM = "Y2";
     _TMC2130_DEFINE(Y2);
   #endif
   #if Z_IS_TMC(2130)
-    static const char TMC_Z_LABEL[] PROGMEM = "Z";
     _TMC2130_DEFINE(Z);
   #endif
   #if Z2_IS_TMC(2130)
-    static const char TMC_Z2_LABEL[] PROGMEM = "Z2";
     _TMC2130_DEFINE(Z2);
   #endif
   #if E0_IS_TMC(2130)
-    static const char TMC_E0_LABEL[] PROGMEM = "E0";
     _TMC2130_DEFINE(E0);
   #endif
   #if E1_IS_TMC(2130)
-    static const char TMC_E1_LABEL[] PROGMEM = "E1";
     _TMC2130_DEFINE(E1);
   #endif
   #if E2_IS_TMC(2130)
-    static const char TMC_E2_LABEL[] PROGMEM = "E2";
     _TMC2130_DEFINE(E2);
   #endif
   #if E3_IS_TMC(2130)
-    static const char TMC_E3_LABEL[] PROGMEM = "E3";
     _TMC2130_DEFINE(E3);
   #endif
   #if E4_IS_TMC(2130)
-    static const char TMC_E4_LABEL[] PROGMEM = "E4";
     _TMC2130_DEFINE(E4);
   #endif
 
-  void tmc2130_init(TMCMarlin<TMC2130Stepper> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
+  void tmc_init(TMCMarlin<TMC2130Stepper> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
     #if DISABLED(STEALTHCHOP) || DISABLED(HYBRID_THRESHOLD)
       UNUSED(thrs);
       UNUSED(spmm);
@@ -215,72 +242,6 @@
     #endif
     st.GSTAT(); // Clear GSTAT
   }
-
-  #define _TMC2130_INIT(ST, SPMM) tmc2130_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, SPMM)
-
-  void tmc2130_init_to_defaults() {
-    #if X_IS_TMC(2130)
-      _TMC2130_INIT( X, planner.axis_steps_per_mm[X_AXIS]);
-    #endif
-    #if X2_IS_TMC(2130)
-      _TMC2130_INIT(X2, planner.axis_steps_per_mm[X_AXIS]);
-    #endif
-    #if Y_IS_TMC(2130)
-      _TMC2130_INIT( Y, planner.axis_steps_per_mm[Y_AXIS]);
-    #endif
-    #if Y2_IS_TMC(2130)
-      _TMC2130_INIT(Y2, planner.axis_steps_per_mm[Y_AXIS]);
-    #endif
-    #if Z_IS_TMC(2130)
-      _TMC2130_INIT( Z, planner.axis_steps_per_mm[Z_AXIS]);
-    #endif
-    #if Z2_IS_TMC(2130)
-      _TMC2130_INIT(Z2, planner.axis_steps_per_mm[Z_AXIS]);
-    #endif
-    #if E0_IS_TMC(2130)
-      _TMC2130_INIT(E0, planner.axis_steps_per_mm[E_AXIS]);
-    #endif
-    #if E1_IS_TMC(2130)
-      { constexpr int extruder = 1; _TMC2130_INIT(E1, planner.axis_steps_per_mm[E_AXIS_N]); }
-    #endif
-    #if E2_IS_TMC(2130)
-      { constexpr int extruder = 2; _TMC2130_INIT(E2, planner.axis_steps_per_mm[E_AXIS_N]); }
-    #endif
-    #if E3_IS_TMC(2130)
-      { constexpr int extruder = 3; _TMC2130_INIT(E3, planner.axis_steps_per_mm[E_AXIS_N]); }
-    #endif
-    #if E4_IS_TMC(2130)
-      { constexpr int extruder = 4; _TMC2130_INIT(E4, planner.axis_steps_per_mm[E_AXIS_N]); }
-    #endif
-
-    #if ENABLED(SENSORLESS_HOMING)
-      #define TMC_INIT_SGT(P,Q) stepper##Q.sgt(P##_HOMING_SENSITIVITY);
-      #ifdef X_HOMING_SENSITIVITY
-        #if X_HAS_STALLGUARD
-          stepperX.sgt(X_HOMING_SENSITIVITY);
-        #endif
-        #if X2_HAS_STALLGUARD
-          stepperX2.sgt(X_HOMING_SENSITIVITY);
-        #endif
-      #endif
-      #ifdef Y_HAS_STALLGUARD
-        #if Y_IS_TMC(2130) || ENABLED(IS_TRAMS)
-          stepperY.sgt(Y_HOMING_SENSITIVITY);
-        #endif
-        #if Y2_HAS_STALLGUARD
-          stepperY2.sgt(Y_HOMING_SENSITIVITY);
-        #endif
-      #endif
-      #ifdef Z_HAS_STALLGUARD
-        #if Z_IS_TMC(2130) || ENABLED(IS_TRAMS)
-          stepperZ.sgt(Z_HOMING_SENSITIVITY);
-        #endif
-        #if Z2_HAS_STALLGUARD
-          stepperZ2.sgt(Z_HOMING_SENSITIVITY);
-        #endif
-      #endif
-    #endif
-  }
 #endif // HAVE_TMC2130
 
 //
@@ -297,7 +258,6 @@
 
   // Stepper objects of TMC2208 steppers used
   #if X_IS_TMC(2208)
-    static const char TMC_X_LABEL[] PROGMEM = "X";
     #ifdef X_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(X);
     #else
@@ -305,7 +265,6 @@
     #endif
   #endif
   #if X2_IS_TMC(2208)
-    static const char TMC_X2_LABEL[] PROGMEM = "X2";
     #ifdef X2_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(X2);
     #else
@@ -313,7 +272,6 @@
     #endif
   #endif
   #if Y_IS_TMC(2208)
-    static const char TMC_Y_LABEL[] PROGMEM = "Y";
     #ifdef Y_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(Y);
     #else
@@ -321,7 +279,6 @@
     #endif
   #endif
   #if Y2_IS_TMC(2208)
-    static const char TMC_Y2_LABEL[] PROGMEM = "Y2";
     #ifdef Y2_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(Y2);
     #else
@@ -329,7 +286,6 @@
     #endif
   #endif
   #if Z_IS_TMC(2208)
-    static const char TMC_Z_LABEL[] PROGMEM = "Z";
     #ifdef Z_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(Z);
     #else
@@ -337,7 +293,6 @@
     #endif
   #endif
   #if Z2_IS_TMC(2208)
-    static const char TMC_Z2_LABEL[] PROGMEM = "Z2";
     #ifdef Z2_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(Z2);
     #else
@@ -345,7 +300,6 @@
     #endif
   #endif
   #if E0_IS_TMC(2208)
-    static const char TMC_E0_LABEL[] PROGMEM = "E0";
     #ifdef E0_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(E0);
     #else
@@ -353,7 +307,6 @@
     #endif
   #endif
   #if E1_IS_TMC(2208)
-    static const char TMC_E1_LABEL[] PROGMEM = "E1";
     #ifdef E1_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(E1);
     #else
@@ -361,7 +314,6 @@
     #endif
   #endif
   #if E2_IS_TMC(2208)
-    static const char TMC_E2_LABEL[] PROGMEM = "E2";
     #ifdef E2_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(E2);
     #else
@@ -369,7 +321,6 @@
     #endif
   #endif
   #if E3_IS_TMC(2208)
-    static const char TMC_E3_LABEL[] PROGMEM = "E3";
     #ifdef E3_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(E3);
     #else
@@ -377,7 +328,6 @@
     #endif
   #endif
   #if E4_IS_TMC(2208)
-    static const char TMC_E4_LABEL[] PROGMEM = "E4";
     #ifdef E4_HARDWARE_SERIAL
       _TMC2208_DEFINE_HARDWARE(E4);
     #else
@@ -421,7 +371,7 @@
     #endif
   }
 
-  void tmc2208_init(TMCMarlin<TMC2208Stepper> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
+  void tmc_init(TMCMarlin<TMC2208Stepper> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
     st.pdn_disable(true); // Use UART
     st.mstep_reg_select(true); // Select microsteps with UART
     st.I_scale_analog(false);
@@ -455,44 +405,6 @@
     st.GSTAT(0b111); // Clear
     delay(200);
   }
-
-  #define _TMC2208_INIT(ST, SPMM) tmc2208_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, SPMM)
-
-  void tmc2208_init_to_defaults() {
-    #if X_IS_TMC(2208)
-      _TMC2208_INIT(X, planner.axis_steps_per_mm[X_AXIS]);
-    #endif
-    #if X2_IS_TMC(2208)
-      _TMC2208_INIT(X2, planner.axis_steps_per_mm[X_AXIS]);
-    #endif
-    #if Y_IS_TMC(2208)
-      _TMC2208_INIT(Y, planner.axis_steps_per_mm[Y_AXIS]);
-    #endif
-    #if Y2_IS_TMC(2208)
-      _TMC2208_INIT(Y2, planner.axis_steps_per_mm[Y_AXIS]);
-    #endif
-    #if Z_IS_TMC(2208)
-      _TMC2208_INIT(Z, planner.axis_steps_per_mm[Z_AXIS]);
-    #endif
-    #if Z2_IS_TMC(2208)
-      _TMC2208_INIT(Z2, planner.axis_steps_per_mm[Z_AXIS]);
-    #endif
-    #if E0_IS_TMC(2208)
-      _TMC2208_INIT(E0, planner.axis_steps_per_mm[E_AXIS]);
-    #endif
-    #if E1_IS_TMC(2208)
-      { constexpr int extruder = 1; _TMC2208_INIT(E1, planner.axis_steps_per_mm[E_AXIS_N]); }
-    #endif
-    #if E2_IS_TMC(2208)
-      { constexpr int extruder = 2; _TMC2208_INIT(E2, planner.axis_steps_per_mm[E_AXIS_N]); }
-    #endif
-    #if E3_IS_TMC(2208)
-      { constexpr int extruder = 3; _TMC2208_INIT(E3, planner.axis_steps_per_mm[E_AXIS_N]); }
-    #endif
-    #if E4_IS_TMC(2208)
-      { constexpr int extruder = 4; _TMC2208_INIT(E4, planner.axis_steps_per_mm[E_AXIS_N]); }
-    #endif
-  }
 #endif // HAVE_TMC2208
 
 //
@@ -512,51 +424,40 @@
 
   // Stepper objects of TMC2660 steppers used
   #if X_IS_TMC(2660)
-    static const char TMC_X_LABEL[] PROGMEM = "X";
     _TMC2660_DEFINE(X);
   #endif
   #if X2_IS_TMC(2660)
-    static const char TMC_X2_LABEL[] PROGMEM = "X2";
     _TMC2660_DEFINE(X2);
   #endif
   #if Y_IS_TMC(2660)
-    static const char TMC_Y_LABEL[] PROGMEM = "Y";
     _TMC2660_DEFINE(Y);
   #endif
   #if Y2_IS_TMC(2660)
-    static const char TMC_Y2_LABEL[] PROGMEM = "Y2";
     _TMC2660_DEFINE(Y2);
   #endif
   #if Z_IS_TMC(2660)
-    static const char TMC_Z_LABEL[] PROGMEM = "Z";
     _TMC2660_DEFINE(Z);
   #endif
   #if Z2_IS_TMC(2660)
-    static const char TMC_Z2_LABEL[] PROGMEM = "Z2";
     _TMC2660_DEFINE(Z2);
   #endif
   #if E0_IS_TMC(2660)
-    static const char TMC_E0_LABEL[] PROGMEM = "E0";
     _TMC2660_DEFINE(E0);
   #endif
   #if E1_IS_TMC(2660)
-    static const char TMC_E1_LABEL[] PROGMEM = "E1";
     _TMC2660_DEFINE(E1);
   #endif
   #if E2_IS_TMC(2660)
-    static const char TMC_E2_LABEL[] PROGMEM = "E2";
     _TMC2660_DEFINE(E2);
   #endif
   #if E3_IS_TMC(2660)
-    static const char TMC_E3_LABEL[] PROGMEM = "E3";
     _TMC2660_DEFINE(E3);
   #endif
   #if E4_IS_TMC(2660)
-    static const char TMC_E4_LABEL[] PROGMEM = "E4";
     _TMC2660_DEFINE(E4);
   #endif
 
-  void tmc2660_init(TMCMarlin<TMC2660Stepper> &st, const uint16_t mA, const uint16_t microsteps) {
+  void tmc_init(TMCMarlin<TMC2660Stepper> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t, const float) {
     st.begin();
     st.rms_current(mA);
     st.microsteps(microsteps);
@@ -565,44 +466,6 @@
     st.intpol(INTERPOLATE);
     //st.hysteresis_start(3);
     //st.hysteresis_end(2);
-  }
-
-  #define _TMC2660_INIT(ST) tmc2660_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS)
-
-  void tmc2660_init_to_defaults() {
-    #if ENABLED(X_IS_TMC2660)
-      _TMC2660_INIT( X);
-    #endif
-    #if ENABLED(X2_IS_TMC2660)
-      _TMC2660_INIT(X2);
-    #endif
-    #if ENABLED(Y_IS_TMC2660)
-      _TMC2660_INIT( Y);
-    #endif
-    #if ENABLED(Y2_IS_TMC2660)
-      _TMC2660_INIT(Y2);
-    #endif
-    #if ENABLED(Z_IS_TMC2660)
-      _TMC2660_INIT( Z);
-    #endif
-    #if ENABLED(Z2_IS_TMC2660)
-      _TMC2660_INIT(Z2);
-    #endif
-    #if ENABLED(E0_IS_TMC2660)
-      _TMC2660_INIT(E0);
-    #endif
-    #if ENABLED(E1_IS_TMC2660)
-      _TMC2660_INIT(E1);
-    #endif
-    #if ENABLED(E2_IS_TMC2660)
-      _TMC2660_INIT(E2);
-    #endif
-    #if ENABLED(E3_IS_TMC2660)
-      _TMC2660_INIT(E3);
-    #endif
-    #if ENABLED(E4_IS_TMC2660)
-      _TMC2660_INIT(E4);
-    #endif
   }
 #endif // HAVE_TMC2660
 
@@ -646,23 +509,73 @@ void reset_stepper_drivers() {
   #if ENABLED(HAVE_TMC26X)
     tmc26x_init_to_defaults();
   #endif
-  #if HAVE_TMC(2130)
-    delay(100);
-    tmc2130_init_to_defaults();
+  #if ENABLED(HAVE_L6470DRIVER)
+    L6470_init_to_defaults();
   #endif
-  #if HAVE_TMC(2208)
-    delay(100);
-    tmc2208_init_to_defaults();
+
+  #if X_IS_TRINAMIC
+    _TMC_INIT(X, planner.axis_steps_per_mm[X_AXIS]);
   #endif
-  #if HAVE_TMC(2660)
-    delay(100);
-    tmc2660_init_to_defaults();
+  #if X2_IS_TRINAMIC
+    _TMC_INIT(X2, planner.axis_steps_per_mm[X_AXIS]);
+  #endif
+  #if Y_IS_TRINAMIC
+    _TMC_INIT(Y, planner.axis_steps_per_mm[Y_AXIS]);
+  #endif
+  #if Y2_IS_TRINAMIC
+    _TMC_INIT(Y2, planner.axis_steps_per_mm[Y_AXIS]);
+  #endif
+  #if Z_IS_TRINAMIC
+    _TMC_INIT(Z, planner.axis_steps_per_mm[Z_AXIS]);
+  #endif
+  #if Z2_IS_TRINAMIC
+    _TMC_INIT(Z2, planner.axis_steps_per_mm[Z_AXIS]);
+  #endif
+  #if E0_IS_TRINAMIC
+    _TMC_INIT(E0, planner.axis_steps_per_mm[E_AXIS]);
+  #endif
+  #if E1_IS_TRINAMIC
+    { constexpr int extruder = 1; _TMC_INIT(E1, planner.axis_steps_per_mm[E_AXIS_N]); }
+  #endif
+  #if E2_IS_TRINAMIC
+    { constexpr int extruder = 2; _TMC_INIT(E2, planner.axis_steps_per_mm[E_AXIS_N]); }
+  #endif
+  #if E3_IS_TRINAMIC
+    { constexpr int extruder = 3; _TMC_INIT(E3, planner.axis_steps_per_mm[E_AXIS_N]); }
+  #endif
+  #if E4_IS_TRINAMIC
+    { constexpr int extruder = 4; _TMC_INIT(E4, planner.axis_steps_per_mm[E_AXIS_N]); }
+  #endif
+
+  #if ENABLED(SENSORLESS_HOMING)
+    #define TMC_INIT_SGT(P,Q) stepper##Q.sgt(P##_HOMING_SENSITIVITY);
+    #ifdef X_HOMING_SENSITIVITY
+      #if X_HAS_STALLGUARD
+        stepperX.sgt(X_HOMING_SENSITIVITY);
+      #endif
+      #if X2_HAS_STALLGUARD
+        stepperX2.sgt(X_HOMING_SENSITIVITY);
+      #endif
+    #endif
+    #ifdef Y_HAS_STALLGUARD
+      #if Y_IS_TMC(2130) || ENABLED(IS_TRAMS)
+        stepperY.sgt(Y_HOMING_SENSITIVITY);
+      #endif
+      #if Y2_HAS_STALLGUARD
+        stepperY2.sgt(Y_HOMING_SENSITIVITY);
+      #endif
+    #endif
+    #ifdef Z_HAS_STALLGUARD
+      #if Z_IS_TMC(2130) || ENABLED(IS_TRAMS)
+        stepperZ.sgt(Z_HOMING_SENSITIVITY);
+      #endif
+      #if Z2_HAS_STALLGUARD
+        stepperZ2.sgt(Z_HOMING_SENSITIVITY);
+      #endif
+    #endif
   #endif
   #ifdef TMC_ADV
     TMC_ADV()
-  #endif
-  #if ENABLED(HAVE_L6470DRIVER)
-    L6470_init_to_defaults();
   #endif
 }
 
