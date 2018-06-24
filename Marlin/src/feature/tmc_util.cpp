@@ -183,47 +183,36 @@ bool report_tmc_status = false;
     if (ELAPSED(millis(), next_cOT)) {
       next_cOT = millis() + 500;
       #if HAS_HW_COMMS(X)
-        static uint8_t x_otpw_cnt = 0;
         monitor_tmc_driver(stepperX);
       #endif
       #if HAS_HW_COMMS(Y)
-        static uint8_t y_otpw_cnt = 0;
         monitor_tmc_driver(stepperY);
       #endif
       #if HAS_HW_COMMS(Z)
-        static uint8_t z_otpw_cnt = 0;
         monitor_tmc_driver(stepperZ);
       #endif
       #if HAS_HW_COMMS(X2)
-        static uint8_t x2_otpw_cnt = 0;
         monitor_tmc_driver(stepperX2);
       #endif
       #if HAS_HW_COMMS(Y2)
-        static uint8_t y2_otpw_cnt = 0;
         monitor_tmc_driver(stepperY2);
       #endif
       #if HAS_HW_COMMS(Z2)
-        static uint8_t z2_otpw_cnt = 0;
         monitor_tmc_driver(stepperZ2);
       #endif
       #if HAS_HW_COMMS(E0)
-        static uint8_t e0_otpw_cnt = 0;
         monitor_tmc_driver(stepperE0);
       #endif
       #if HAS_HW_COMMS(E1)
-        static uint8_t e1_otpw_cnt = 0;
         monitor_tmc_driver(stepperE1);
       #endif
       #if HAS_HW_COMMS(E2)
-        static uint8_t e2_otpw_cnt = 0;
         monitor_tmc_driver(stepperE2);
       #endif
       #if HAS_HW_COMMS(E3)
-        static uint8_t e3_otpw_cnt = 0;
         monitor_tmc_driver(stepperE3);
       #endif
       #if HAS_HW_COMMS(E4)
-        static uint8_t e4_otpw_cnt = 0;
         monitor_tmc_driver(stepperE4);
       #endif
 
@@ -302,7 +291,7 @@ bool report_tmc_status = false;
         default: break;
       }
     }
-    static void tmc_parse_drv_status(TMC2130Stepper &st, const TMC_drv_status_enum i) {
+    static void _tmc_parse_drv_status(TMC2130Stepper &st, const TMC_drv_status_enum i) {
       switch (i) {
         case TMC_STALLGUARD: if (st.stallguard()) SERIAL_CHAR('X'); break;
         case TMC_SG_RESULT:  SERIAL_PRINT(st.sg_result(), DEC);   break;
@@ -323,7 +312,7 @@ bool report_tmc_status = false;
         default: break;
       }
     }
-    static void tmc_parse_drv_status(TMC2208Stepper &st, const TMC_drv_status_enum i) {
+    static void _tmc_parse_drv_status(TMC2208Stepper &st, const TMC_drv_status_enum i) {
       switch (i) {
         case TMC_T157: if (st.t157()) SERIAL_CHAR('X'); break;
         case TMC_T150: if (st.t150()) SERIAL_CHAR('X'); break;
@@ -336,7 +325,7 @@ bool report_tmc_status = false;
   #endif
 
   #if HAVE_TMC(2660)
-    static void tmc_parse_drv_status(TMC2660Stepper, const TMC_drv_status_enum) { }
+    static void _tmc_parse_drv_status(TMC2660Stepper, const TMC_drv_status_enum) { }
   #endif
 
   template <typename TMC>
@@ -430,7 +419,7 @@ bool report_tmc_status = false;
         st.printLabel();
         drv_status_print_hex(st.DRV_STATUS());
         break;
-      default: tmc_parse_drv_status(st, i); break;
+      default: _tmc_parse_drv_status(st, i); break;
     }
   }
 

@@ -52,24 +52,24 @@ template <class TMC>
 class TMCMarlin : public TMC, public TMCStorage {
   public:
     TMCMarlin(const char* tmc_label, uint16_t cs_pin, float RS) :
-      TMCStorage(tmc_label),
-      TMC(cs_pin, RS)
+      TMC(cs_pin, RS),
+      TMCStorage(tmc_label)
       {}
     TMCMarlin(const char* tmc_label, uint16_t CS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK) :
-      TMCStorage(tmc_label),
-      TMC(CS, RS, pinMOSI, pinMISO, pinSCK)
+      TMC(CS, RS, pinMOSI, pinMISO, pinSCK),
+      TMCStorage(tmc_label)
       {}
 };
 template<>
 class TMCMarlin<TMC2208Stepper> : public TMC2208Stepper, public TMCStorage {
   public:
     TMCMarlin(const char* tmc_label, Stream * SerialPort, float RS, bool has_rx=true) :
-      TMCStorage(tmc_label),
-      TMC2208Stepper(SerialPort, RS, has_rx=true)
+      TMC2208Stepper(SerialPort, RS, has_rx=true),
+      TMCStorage(tmc_label)
       {}
     TMCMarlin(const char* tmc_label, uint16_t RX, uint16_t TX, float RS, bool has_rx=true) :
-      TMCStorage(tmc_label),
-      TMC2208Stepper(RX, TX, RS, has_rx=true)
+      TMC2208Stepper(RX, TX, RS, has_rx=true),
+      TMCStorage(tmc_label)
       {}
 };
 
