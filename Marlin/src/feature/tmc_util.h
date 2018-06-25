@@ -30,6 +30,8 @@
 
 extern bool report_tmc_status;
 
+enum TMC_AxisEnum : char { TMC_X, TMC_Y, TMC_Z, TMC_X2, TMC_Y2, TMC_Z2, TMC_E0, TMC_E1, TMC_E2, TMC_E3, TMC_E4 };
+
 class TMCStorage {
   public:
     TMCStorage(const char* tmc_label) : label(tmc_label) {}
