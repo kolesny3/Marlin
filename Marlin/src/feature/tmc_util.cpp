@@ -119,7 +119,8 @@ bool report_tmc_status = false;
       if (data.is_error) {
         SERIAL_EOL();
         st.printLabel();
-        SERIAL_ECHOLNPGM(" driver error detected:");
+        SERIAL_ECHOPGM(" driver error detected: 0x");
+        SERIAL_PRINTLN(data.drv_status, HEX);
         if (data.is_ot) SERIAL_ECHOLNPGM("overtemperature");
         if (st.s2ga()) SERIAL_ECHOLNPGM("short to ground (coil A)");
         if (st.s2gb()) SERIAL_ECHOLNPGM("short to ground (coil B)");
