@@ -1120,10 +1120,10 @@
  * You'll also need the TMC2208Stepper Arduino library
  * (https://github.com/teemuatlut/TMC2208Stepper).
  */
-#define  X_DRIVER_TYPE 2130 // [2130, 2208, 2660]
-#define  Y_DRIVER_TYPE 2130
+#define  X_DRIVER_TYPE 2660 // [2130, 2208, 2660]
+#define  Y_DRIVER_TYPE 2660
 #define  Z_DRIVER_TYPE 2660
-//#define X2_DRIVER_TYPE 2130
+//#define X2_DRIVER_TYPE 2660
 //#define Y2_DRIVER_TYPE 2130
 //#define Z2_DRIVER_TYPE 2130
 #define E0_DRIVER_TYPE 2660
@@ -1188,11 +1188,11 @@
   //#define E4_CS_PIN         -1
 
   /**
-   * Use software SPI for TMC2130 or TMC2660.
+   * Software option for SPI driven drivers (TMC2130, TMC2660).
    * The default SW SPI pins are defined the respective pins files,
    * but you can override or define them here.
    */
-  #define TMC_USE_SW_SPI
+  //#define TMC_USE_SW_SPI
   //#define TMC_SW_MOSI       -1
   //#define TMC_SW_MISO       -1
   //#define TMC_SW_SCK        -1
@@ -1202,7 +1202,7 @@
    * Use Trinamic's ultra quiet stepping mode.
    * When disabled, Marlin will use spreadCycle stepping mode.
    */
-  #define STEALTHCHOP
+  //#define STEALTHCHOP
 
   /**
    * Monitor Trinamic TMC2130 and TMC2208 drivers for error conditions,
@@ -1230,7 +1230,7 @@
    * STEALTHCHOP needs to be enabled.
    * M913 X/Y/Z/E to live tune the setting
    */
-  #define HYBRID_THRESHOLD
+  //#define HYBRID_THRESHOLD
 
   #define X_HYBRID_THRESHOLD     100  // [mm/s]
   #define X2_HYBRID_THRESHOLD    100
@@ -1257,7 +1257,7 @@
    * It is advised to set X/Y/Z_HOME_BUMP_MM to 0.
    * M914 X/Y/Z to live tune the setting
    */
-  #define SENSORLESS_HOMING // TMC2130 and TMC2660 only
+  //#define SENSORLESS_HOMING // TMC2130 and TMC2660 only
 
   #if ENABLED(SENSORLESS_HOMING)
     #define X_HOMING_SENSITIVITY  8

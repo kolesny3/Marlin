@@ -105,7 +105,11 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT 0
+#if defined(TARGET_LPC1768)
+  #define SERIAL_PORT -1
+#else
+  #define SERIAL_PORT 0
+#endif
 
 /**
  * Select a secondary serial port on the board to use for communication with the host.
@@ -134,7 +138,8 @@
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
   #if defined(TARGET_LPC1768)
-    #define MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
+    //#define MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
+    #define MOTHERBOARD BOARD_AZTEEG_X5_GT
   #else
     #define MOTHERBOARD BOARD_RAMPS_14_EFB
   #endif
@@ -1653,7 +1658,7 @@
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 //
 // ReprapWorld Graphical LCD
