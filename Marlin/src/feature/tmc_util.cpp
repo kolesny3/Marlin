@@ -794,4 +794,53 @@ bool report_tmc_status = false;
   }
 #endif // TMC2130 TMC2660
 
+template<typename TMC>
+static void test_connection(TMC &st) {
+  SERIAL_ECHOPGM("Testing ");
+  st.printLabel();
+  SERIAL_ECHOPGM(" connection...");
+  switch(st.test_connection()) {
+    case 0: SERIAL_ECHOPGM("OK"); break;
+    case 1: SERIAL_ECHOPGM("Error(0xFFFFFFFF)"); break;
+    case 2: SERIAL_ECHOPGM("Error(0x0)"); break;
+  }
+  SERIAL_EOL();
+}
+
+void test_tmc_connection() {
+  #if AXIS_IS_TMC(X)
+    test_connection(stepperX);
+  #endif
+  #if AXIS_IS_TMC(Y)
+    test_connection(stepperY);
+  #endif
+  #if AXIS_IS_TMC(Z)
+    test_connection(stepperZ);
+  #endif
+  #if AXIS_IS_TMC(X2)
+    test_connection(stepperX2);
+  #endif
+  #if AXIS_IS_TMC(Y2)
+    test_connection(stepperY2);
+  #endif
+  #if AXIS_IS_TMC(Z2)
+    test_connection(stepperZ2);
+  #endif
+  #if AXIS_IS_TMC(E0)
+    test_connection(stepperE0);
+  #endif
+  #if AXIS_IS_TMC(E1)
+    test_connection(stepperE1);
+  #endif
+  #if AXIS_IS_TMC(E2)
+    test_connection(stepperE2);
+  #endif
+  #if AXIS_IS_TMC(E3)
+    test_connection(stepperE3);
+  #endif
+  #if AXIS_IS_TMC(E4)
+    test_connection(stepperE4);
+  #endif
+}
+
 #endif // HAS_TRINAMIC
