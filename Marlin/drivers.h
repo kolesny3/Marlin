@@ -46,60 +46,19 @@
 #define AXIS_DRIVER_TYPE_Y(T) AXIS_DRIVER_TYPE(Y,T)
 #define AXIS_DRIVER_TYPE_Z(T) AXIS_DRIVER_TYPE(Z,T)
 
-#if ENABLED(X_DUAL_STEPPER_DRIVERS) || ENABLED(DUAL_X_CARRIAGE)
-  #define AXIS_DRIVER_TYPE_X2(T) AXIS_DRIVER_TYPE(X2,T)
-#else
-  #define AXIS_DRIVER_TYPE_X2(T) false
-#endif
-#if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-  #define AXIS_DRIVER_TYPE_Y2(T) AXIS_DRIVER_TYPE(Y2,T)
-#else
-  #define AXIS_DRIVER_TYPE_Y2(T) false
-#endif
-#if ENABLED(Z_DUAL_STEPPER_DRIVERS)
-  #define AXIS_DRIVER_TYPE_Z2(T) AXIS_DRIVER_TYPE(Z2,T)
-#else
-  #define AXIS_DRIVER_TYPE_Z2(T) false
-#endif
-#if E_STEPPERS > 0
-  #define AXIS_DRIVER_TYPE_E0(T) AXIS_DRIVER_TYPE(E0,T)
-#else
-  #define AXIS_DRIVER_TYPE_E0(T) false
-#endif
-#if E_STEPPERS > 1
-  #define AXIS_DRIVER_TYPE_E1(T) AXIS_DRIVER_TYPE(E1,T)
-#else
-  #define AXIS_DRIVER_TYPE_E1(T) false
-#endif
-#if E_STEPPERS > 2
-  #define AXIS_DRIVER_TYPE_E2(T) AXIS_DRIVER_TYPE(E2,T)
-#else
-  #define AXIS_DRIVER_TYPE_E2(T) false
-#endif
-#if E_STEPPERS > 3
-  #define AXIS_DRIVER_TYPE_E3(T) AXIS_DRIVER_TYPE(E3,T)
-#else
-  #define AXIS_DRIVER_TYPE_E3(T) false
-#endif
-#if E_STEPPERS > 4
-  #define AXIS_DRIVER_TYPE_E4(T) AXIS_DRIVER_TYPE(E4,T)
-#else
-  #define AXIS_DRIVER_TYPE_E4(T) false
-#endif
-
-#define HAS_DRIVER(T)  (AXIS_DRIVER_TYPE_X(T)  || AXIS_DRIVER_TYPE_X2(T) || \
-                        AXIS_DRIVER_TYPE_Y(T)  || AXIS_DRIVER_TYPE_Y2(T) || \
-                        AXIS_DRIVER_TYPE_Z(T)  || AXIS_DRIVER_TYPE_Z2(T) || \
-                        AXIS_DRIVER_TYPE_E0(T) || AXIS_DRIVER_TYPE_E1(T) || \
-                        AXIS_DRIVER_TYPE_E2(T) || AXIS_DRIVER_TYPE_E3(T) || \
-                        AXIS_DRIVER_TYPE_E4(T) )
+#define HAS_DRIVER(T)  (AXIS_DRIVER_TYPE(X, T)  || AXIS_DRIVER_TYPE(X2, T) || \
+                        AXIS_DRIVER_TYPE(Y, T)  || AXIS_DRIVER_TYPE(Y2, T) || \
+                        AXIS_DRIVER_TYPE(Z, T)  || AXIS_DRIVER_TYPE(Z2, T) || \
+                        AXIS_DRIVER_TYPE(E0, T) || AXIS_DRIVER_TYPE(E1, T) || \
+                        AXIS_DRIVER_TYPE(E2, T) || AXIS_DRIVER_TYPE(E3, T) || \
+                        AXIS_DRIVER_TYPE(E4, T) )
 
 // Test for supported TMC drivers that require advanced configuration
 // Does not match standalone configurations
 #define HAS_TRINAMIC ( HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2660) )
 
-#define AXIS_IS_TMC(A) ( AXIS_DRIVER_TYPE_##A(TMC2130) || \
-                         AXIS_DRIVER_TYPE_##A(TMC2208) || \
-                         AXIS_DRIVER_TYPE_##A(TMC2660) )
+#define AXIS_IS_TMC(A) ( AXIS_DRIVER_TYPE(A, TMC2130) || \
+                         AXIS_DRIVER_TYPE(A, TMC2208) || \
+                         AXIS_DRIVER_TYPE(A, TMC2660) )
 
 #endif // _DRIVERS_H_
